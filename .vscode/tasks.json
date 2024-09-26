@@ -1,0 +1,44 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build Windows Binary",
+			"type": "shell",
+			"command": "cd ${workspaceFolder}/cmd; CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -a -ldflags '-s -w -extldflags \"-static\"' -o ${workspaceFolder}/build/GenWorkSchedule.exe",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [
+				"$go"
+			]
+		},
+		{
+			"label": "Generate Go Branch Coverage(C1) Report",
+			"type": "shell",
+			"command": "go",
+			"args": [
+				"test",
+				"-coverprofile=coverage.out",
+				"-covermode=count",
+				"-coverpkg=./cmd",
+				"./...",
+				"&&",
+				"go",
+				"tool",
+				"cover",
+				"-html=coverage.out",
+				"-o",
+				"coverage.html",
+				"&&",
+				"rm",
+				"coverage.out"
+			],
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			}
+		}
+	]
+}

@@ -1,0 +1,946 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>cmd: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">gen_work_schedule/cmd/AppInterfaces.go (0.0%)</option>
+				
+				<option value="file1">gen_work_schedule/cmd/consts.go (100.0%)</option>
+				
+				<option value="file2">gen_work_schedule/cmd/createEachSpreadSheet.go (75.4%)</option>
+				
+				<option value="file3">gen_work_schedule/cmd/fileUtility.go (94.7%)</option>
+				
+				<option value="file4">gen_work_schedule/cmd/getOrderTable.go (87.0%)</option>
+				
+				<option value="file5">gen_work_schedule/cmd/inputPaths.go (85.7%)</option>
+				
+				<option value="file6">gen_work_schedule/cmd/joinFullNames.go (100.0%)</option>
+				
+				<option value="file7">gen_work_schedule/cmd/main.go (91.1%)</option>
+				
+				<option value="file8">gen_work_schedule/cmd/retrieveWorkDays.go (94.2%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "io"
+        "os"
+
+        "github.com/ncruces/zenity"
+)
+
+type AppInterfaces struct {
+        ZenityIF    ZenityInterface
+        CacheDirIF  CacheDirInterface
+        InputReader io.Reader
+}
+
+type ZenityInterface interface {
+        SelectFile(extension string) (string, error)
+        SelectDirectory() (string, error)
+}
+
+type RealZenity struct{}
+
+func (RealZenity) SelectFile(extension string) (string, error) <span class="cov0" title="0">{
+        return zenity.SelectFile(
+                zenity.FileFilters{
+                        // 指定拡張子
+                        zenity.FileFilter{
+                                Patterns: []string{"*." + extension},
+                        },
+                        // 全てのファイル
+                        zenity.FileFilter{
+                                Patterns: []string{"*"},
+                        },
+                },
+                // カレントディレクトリから始める
+                zenity.Filename("."),
+        )
+}</span>
+
+func (RealZenity) SelectDirectory() (string, error) <span class="cov0" title="0">{
+        return zenity.SelectFile(
+                zenity.Directory(),
+                // カレントディレクトリから始める
+                zenity.Filename("."),
+        )
+}</span>
+
+type CacheDirInterface interface {
+        UserCacheDir() (string, error)
+}
+
+type RealCacheDirIF struct{}
+
+func (RealCacheDirIF) UserCacheDir() (string, error) <span class="cov0" title="0">{
+        return os.UserCacheDir()
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+const (
+        HolidaysURL           = "https://holidays-jp.shogo82148.com"
+        BeforeUseSheetName    = "ご使用の前に"
+        OutsourceSheetName    = "システム要員作業実績報告(委任)"
+        CompanyColName        = "会社"
+        FamilyNameColName     = "姓"
+        OrderNoColName        = "発注番号"
+        ProjectCodeColName    = "PrjCD"
+        DepartmentCodeColName = "担当部署CD"
+        CustomerColName       = "顧客名"
+        IssueColName          = "案件名"
+        StartDateColName      = "作業開始日"
+        FullNameColName       = "姓名"
+)
+
+func CacheDir(cacheDirIF CacheDirInterface) (string, error) <span class="cov10" title="59">{
+        path, err := cacheDirIF.UserCacheDir()
+        if err != nil </span><span class="cov7" title="19">{
+                return "", err
+        }</span>
+        <span class="cov9" title="40">return path + "/GenWorkSchedule/", nil</span>
+}
+
+func HolidaysJSONPath(cacheDirIF CacheDirInterface) (string, error) <span class="cov8" title="28">{
+        cacheDir, err := CacheDir(cacheDirIF)
+        if err != nil </span><span class="cov3" title="3">{
+                return "", err
+        }</span>
+        <span class="cov8" title="25">return cacheDir + "holidays.json", nil</span>
+}
+
+func PathsJSONPath(cacheDirIF CacheDirInterface) (string, error) <span class="cov7" title="20">{
+        cacheDir, err := CacheDir(cacheDirIF)
+        if err != nil </span><span class="cov6" title="10">{
+                return "", err
+        }</span>
+        <span class="cov6" title="10">return cacheDir + "paths.json", nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+import (
+        "fmt"
+        "slices"
+        "strconv"
+        "time"
+
+        "github.com/xuri/excelize/v2"
+)
+
+func FirstSheet(
+        outFile *excelize.File,
+        record map[string]interface{},
+) error <span class="cov2" title="2">{
+        for _, colName := range []string{ProjectCodeColName, DepartmentCodeColName, CustomerColName, IssueColName} </span><span class="cov5" title="8">{
+                if record[colName] == nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("value of %v is nil", colName)
+                }</span>
+        }
+
+        // 1セル1文字ずつ入力する情報
+        <span class="cov2" title="2">for _, v := range []struct {
+                leftmostCell string
+                header       string
+        }{
+                {leftmostCell: "D18", header: ProjectCodeColName},
+                {leftmostCell: "D19", header: DepartmentCodeColName},
+        } </span><span class="cov4" title="4">{
+                // 左端のセル名を取得
+                col, row, err := excelize.CellNameToCoordinates(v.leftmostCell)
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err)
+                        continue</span>
+                }
+                // 左から1文字ずつ記入
+                <span class="cov4" title="4">for colShift, ch := range record[v.header].(string) </span><span class="cov8" title="28">{
+                        cellName, err := excelize.CoordinatesToCellName(
+                                col+colShift, row)
+                        if err != nil </span><span class="cov0" title="0">{
+                                fmt.Println(err)
+                                continue</span>
+                        }
+                        <span class="cov8" title="28">if err := outFile.SetCellValue(
+                                BeforeUseSheetName, cellName, string(ch)); err != nil </span><span class="cov6" title="14">{
+                                fmt.Println(err)
+                        }</span>
+                }
+        }
+
+        // 1セルに文字列として入力する情報
+        <span class="cov2" title="2">for _, v := range []struct {
+                cell   string
+                header string
+        }{
+                {cell: "D20", header: CustomerColName},
+                {cell: "D21", header: IssueColName},
+        } </span><span class="cov4" title="4">{
+                if err := outFile.SetCellValue(
+                        BeforeUseSheetName, v.cell, record[v.header].(string),
+                ); err != nil </span><span class="cov2" title="2">{
+                        fmt.Println(err)
+                }</span>
+        }
+
+        <span class="cov2" title="2">return nil</span>
+}
+
+func SecondSheet(
+        outFile *excelize.File,
+        record map[string]interface{},
+        startDate time.Time,
+        workDays []int,
+) error <span class="cov2" title="2">{
+        for _, colName := range []string{OrderNoColName, FullNameColName, IssueColName} </span><span class="cov4" title="6">{
+                if record[colName] == nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("value %v is nil", colName)
+                }</span>
+        }
+        // 勤務表の上部
+        <span class="cov2" title="2">for _, v := range []struct {
+                cell  string
+                value interface{}
+        }{
+                {cell: "G9", value: startDate.Year()},
+                {cell: "K9", value: int(startDate.Month())},
+                {cell: "E14", value: "S-" + record[OrderNoColName].(string)},
+                {cell: "S16", value: record[FullNameColName].(string)},
+        } </span><span class="cov5" title="8">{
+                if err := outFile.SetCellValue(OutsourceSheetName, v.cell, v.value); err != nil </span><span class="cov4" title="4">{
+                        fmt.Println(err)
+                }</span>
+        }
+
+        // 各勤務日
+        <span class="cov2" title="2">for row := 20; row &lt;= 50; row++ </span><span class="cov10" title="62">{
+                dayStr, err := outFile.GetCellValue(
+                        OutsourceSheetName, "B"+strconv.Itoa(row))
+                if err != nil </span><span class="cov8" title="31">{
+                        fmt.Println(err)
+                        continue</span>
+                }
+                <span class="cov8" title="31">day, err := strconv.Atoi(dayStr)
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err)
+                        continue</span>
+                }
+
+                // 1行分埋める
+                <span class="cov8" title="31">for _, v := range []struct {
+                        colName string
+                        value   interface{}
+                }{
+                        {colName: "C", value: time.Duration(8) * time.Hour},
+                        {colName: "N", value: record[IssueColName].(string)},
+                } </span><span class="cov10" title="62">{
+                        // 勤務日でないならばセルを空とする
+                        if !slices.Contains(workDays, day) </span><span class="cov9" title="58">{
+                                v.value = nil
+                        }</span>
+
+                        <span class="cov10" title="62">if err := outFile.SetCellValue(
+                                OutsourceSheetName, v.colName+strconv.Itoa(row), v.value,
+                        ); err != nil </span><span class="cov0" title="0">{
+                                fmt.Println(err)
+                        }</span>
+                }
+        }
+
+        <span class="cov2" title="2">return nil</span>
+}
+
+func createEachSpreadSheet(
+        record map[string]interface{},
+        startDate time.Time,
+        workDays []int,
+        pathOf PathOf,
+) error <span class="cov3" title="3">{
+        outPath := pathOf.OutputDir + fmt.Sprintf(
+                "/S-%s【%s】%s_%04d%02d.xlsx",
+                record[OrderNoColName],
+                record[CompanyColName],
+                record[FamilyNameColName],
+                startDate.Year(), startDate.Month())
+        if err := copyFile(pathOf.TemplateXlsx, outPath); err != nil </span><span class="cov2" title="2">{
+                return err
+        }</span>
+        <span class="cov1" title="1">outFile, err := excelize.OpenFile(outPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov1" title="1">defer outFile.Close()
+
+        // 「ご使用の前に」シート
+        if err := FirstSheet(outFile, record); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        // 「システム要員作業実績報告(委任)」シート
+        <span class="cov1" title="1">if err := SecondSheet(outFile, record, startDate, workDays); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        // セル再計算の後、編集結果を保存
+        <span class="cov1" title="1">if err := outFile.UpdateLinkedValue(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov1" title="1">if err := outFile.Save(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov1" title="1">fmt.Printf("%s is saved.\n", outPath)
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package main
+
+import (
+        "errors"
+        "io"
+        "os"
+)
+
+func copyFile(src, dst string) error <span class="cov7" title="6">{
+        sourceFile, err := os.Open(src)
+        if err != nil </span><span class="cov4" title="3">{
+                return err
+        }</span>
+        <span class="cov4" title="3">defer sourceFile.Close()
+
+        destFile, err := os.Create(dst)
+        if err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+        <span class="cov3" title="2">defer destFile.Close()
+
+        _, err = io.Copy(destFile, sourceFile)
+        return err</span>
+}
+
+func fileExists(path string) bool <span class="cov10" title="12">{
+        _, err := os.Stat(path)
+        return !errors.Is(err, os.ErrNotExist)
+}</span>
+
+func makeCacheDir(cacheDirIF CacheDirInterface) error <span class="cov8" title="7">{
+        cacheDir, err := CacheDir(cacheDirIF)
+        if err != nil </span><span class="cov6" title="5">{
+                return err
+        }</span>
+        <span class="cov3" title="2">if !fileExists(cacheDir) </span><span class="cov1" title="1">{
+                if err := os.MkdirAll(cacheDir, 0755); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov3" title="2">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package main
+
+import (
+        "strings"
+
+        "github.com/go-gota/gota/dataframe"
+        "github.com/xuri/excelize/v2"
+)
+
+func getOrderTable(path string) (dataframe.DataFrame, error) <span class="cov4" title="6">{
+        // スプレッドシートを開く
+        f, err := excelize.OpenFile(path)
+        if err != nil </span><span class="cov2" title="2">{
+                return dataframe.DataFrame{}, err
+        }</span>
+        <span class="cov3" title="4">defer f.Close()
+
+        // 最初のシートのデータの範囲を取得する
+        sheetName := f.GetSheetName(0)
+        dim, err := f.GetSheetDimension(sheetName)
+        if err != nil </span><span class="cov0" title="0">{
+                return dataframe.DataFrame{}, err
+        }</span>
+        <span class="cov3" title="4">topLeftCol, topLeftRow, err := excelize.CellNameToCoordinates(strings.Split(dim, ":")[0])
+        if err != nil </span><span class="cov0" title="0">{
+                return dataframe.DataFrame{}, err
+        }</span>
+
+        // 最初のシートのテーブルを行ごとに読み込む
+        <span class="cov3" title="4">var records [][]string
+        rows, err := f.GetRows(sheetName)
+        if err != nil </span><span class="cov0" title="0">{
+                return dataframe.DataFrame{}, err
+        }</span>
+        <span class="cov3" title="4">for _, row := range rows[topLeftRow-1:] </span><span class="cov6" title="14">{
+                // 空の行は読み飛ばす
+                // (GetSheetDimension()の不具合か、空行にもかかわらず範囲に含まれる場合があるため)
+                if len(strings.Join(row, "")) == 0 </span><span class="cov3" title="4">{
+                        continue</span>
+                }
+
+                <span class="cov5" title="10">var record []string
+                for _, cell := range row[topLeftCol-1:] </span><span class="cov10" title="110">{
+                        // セルの値の両端の空白, CR, LFを除去した値を格納する
+                        record = append(record, strings.TrimSpace(strings.NewReplacer("\r", "", "\n", "").Replace(cell)))
+                }</span>
+
+                <span class="cov5" title="10">records = append(records, record)</span>
+        }
+
+        <span class="cov3" title="4">return dataframe.LoadRecords(
+                records, dataframe.DetectTypes(false),
+                dataframe.NaNValues([]string{})), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package main
+
+import (
+        "bufio"
+        "encoding/json"
+        "fmt"
+        "io"
+        "log"
+        "os"
+        "strings"
+)
+
+type PathOf struct {
+        // 発注情報
+        OrderXlsx string
+        // 名簿
+        NamesCSV string
+        // 勤務表テンプレート
+        TemplateXlsx string
+        // 出力ディレクトリ
+        OutputDir string
+}
+
+func confirm(reader io.Reader, prompt string) bool <span class="cov4" title="3">{
+        bufReader := bufio.NewReader(reader)
+        for </span><span class="cov4" title="3">{
+                fmt.Printf("%s [y/n]: ", prompt)
+                response, err := bufReader.ReadString('\n')
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+
+                <span class="cov4" title="3">response = strings.ToLower(strings.TrimSpace(response))
+
+                if response == "y" || response == "yes" </span><span class="cov1" title="1">{
+                        return true
+                }</span> else<span class="cov2" title="2"> if response == "n" || response == "no" </span><span class="cov2" title="2">{
+                        return false
+                }</span>
+        }
+}
+
+func readPathsFromJSON(cacheDirIF CacheDirInterface) (PathOf, error) <span class="cov7" title="10">{
+        pathsJSONPath, err := PathsJSONPath(cacheDirIF)
+        if err != nil </span><span class="cov5" title="5">{
+                return PathOf{}, err
+        }</span>
+        // 前回実行時のパス情報を開く
+        <span class="cov5" title="5">pathsCacheFile, err := os.Open(pathsJSONPath)
+        if err != nil </span><span class="cov1" title="1">{
+                return PathOf{}, err
+        }</span>
+        <span class="cov4" title="4">defer pathsCacheFile.Close()
+
+        // 前回実行時のパス情報を読み込む
+        pathsCacheBytes, err := io.ReadAll(pathsCacheFile)
+        if err != nil </span><span class="cov0" title="0">{
+                return PathOf{}, err
+        }</span>
+
+        <span class="cov4" title="4">var pathOf PathOf
+        if err := json.NewDecoder(strings.NewReader(string(pathsCacheBytes))).Decode((&amp;pathOf)); err != nil </span><span class="cov2" title="2">{
+                return PathOf{}, err
+        }</span>
+
+        // 入力情報となるパスについては、ファイル自身が存在しないものは捨てる
+        <span class="cov2" title="2">for _, path := range []*string{
+                &amp;pathOf.OrderXlsx,
+                &amp;pathOf.NamesCSV,
+                &amp;pathOf.TemplateXlsx,
+        } </span><span class="cov6" title="6">{
+                if !fileExists(*path) </span><span class="cov6" title="6">{
+                        *path = ""
+                }</span>
+        }
+
+        <span class="cov2" title="2">return pathOf, nil</span>
+}
+
+func inputPaths(appIF *AppInterfaces) (PathOf, error) <span class="cov6" title="6">{
+        // 前回実行時のパス情報を読み込む
+        pathOf, _ := readPathsFromJSON(appIF.CacheDirIF)
+
+        // 発注情報の入力を促す
+        bufReader := bufio.NewReader(appIF.InputReader)
+        for _, v := range []struct {
+                fileDescription string
+                extension       string
+                path            *string
+        }{
+                {
+                        fileDescription: "発注情報が記載されたxlsxファイル",
+                        extension:       "xlsx",
+                        path:            &amp;pathOf.OrderXlsx,
+                },
+                {
+                        fileDescription: "名簿となるcsvファイル(姓,姓名のテーブル)",
+                        extension:       "csv",
+                        path:            &amp;pathOf.NamesCSV,
+                },
+                {
+                        fileDescription: "勤務表テンプレートとなるxlsxファイル",
+                        extension:       "xlsx",
+                        path:            &amp;pathOf.TemplateXlsx,
+                },
+                {
+                        fileDescription: "各作業の勤務表出力ディレクトリ",
+                        path:            &amp;pathOf.OutputDir,
+                },
+        } </span><span class="cov10" title="24">{
+                doUseCache := false
+                if *v.path != "" </span><span class="cov1" title="1">{
+                        doUseCache = confirm(
+                                appIF.InputReader,
+                                fmt.Sprintf(
+                                        "%sは\n %s\nでよろしいですか?",
+                                        v.fileDescription, *v.path,
+                                ),
+                        )
+                }</span>
+                <span class="cov10" title="24">if !doUseCache </span><span class="cov10" title="24">{
+                        fmt.Printf("%sを選択してください。(Enter押下でファイル選択に進みます)", v.fileDescription)
+                        _, err := bufReader.ReadString('\n')
+                        if err != nil </span><span class="cov0" title="0">{
+                                fmt.Println(err)
+                                continue</span>
+                        }
+                        <span class="cov10" title="24">if v.extension != "" </span><span class="cov9" title="18">{
+                                *v.path, err = appIF.ZenityIF.SelectFile(v.extension)
+                        }</span> else<span class="cov6" title="6"> {
+                                *v.path, err = appIF.ZenityIF.SelectDirectory()
+                        }</span>
+                        <span class="cov10" title="24">if err != nil </span><span class="cov0" title="0">{
+                                fmt.Println(err)
+                                continue</span>
+                        }
+                        <span class="cov10" title="24">fmt.Println(*v.path)</span>
+                }
+        }
+
+        // キャッシュにパス情報を記録する
+        <span class="cov6" title="6">jsonPath, err := PathsJSONPath(appIF.CacheDirIF)
+        if err != nil </span><span class="cov4" title="4">{
+                fmt.Println(err)
+        }</span> else<span class="cov2" title="2"> {
+                jsonBytes, err := json.Marshal(pathOf)
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err)
+                }</span> else<span class="cov2" title="2"> if err := os.WriteFile(jsonPath, jsonBytes, 0644); err != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err)
+                }</span>
+        }
+
+        <span class="cov6" title="6">return pathOf, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package main
+
+import (
+        "fmt"
+        "io"
+        "os"
+        "slices"
+        "strings"
+
+        "github.com/go-gota/gota/dataframe"
+)
+
+func joinFullNames(namesPath string, orderDf dataframe.DataFrame) (dataframe.DataFrame, error) <span class="cov10" title="7">{
+        // 名簿を読み込み左結合
+        csvFile, err := os.Open(namesPath)
+        if err != nil </span><span class="cov4" title="2">{
+                return orderDf, err
+        }</span>
+        <span class="cov8" title="5">defer csvFile.Close()
+
+        csvStr, err := io.ReadAll(csvFile)
+        if err != nil </span><span class="cov1" title="1">{
+                return orderDf, err
+        }</span>
+
+        <span class="cov7" title="4">if !slices.Contains(orderDf.Names(), FamilyNameColName) </span><span class="cov1" title="1">{
+                return orderDf, fmt.Errorf(`発注情報に"%s"の列がありません`, FamilyNameColName)
+        }</span>
+        <span class="cov6" title="3">return orderDf.LeftJoin(
+                dataframe.ReadCSV(
+                        strings.NewReader(string(csvStr))), FamilyNameColName), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+import (
+        "bufio"
+        "fmt"
+        "os"
+        "sync"
+        "time"
+)
+
+func run(appIF *AppInterfaces) error <span class="cov10" title="4">{
+        // キャッシュディレクトリを作成する
+        if err := makeCacheDir(appIF.CacheDirIF); err != nil </span><span class="cov10" title="4">{
+                fmt.Println(err)
+        }</span>
+
+        // 発注情報、名簿、テンプレート、出力フォルダをユーザに入力してもらう
+        <span class="cov10" title="4">pathOf, err := inputPaths(appIF)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        // 発注情報を取り込む
+        <span class="cov10" title="4">orderDf, err := getOrderTable(pathOf.OrderXlsx)
+        if err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        // 名簿を発注情報に合併
+        <span class="cov8" title="3">joinedDf, err := joinFullNames(pathOf.NamesCSV, orderDf)
+        if err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        // 発注情報より作業開始日を読み取る
+        <span class="cov5" title="2">var startDate time.Time
+        for _, startDateStr := range joinedDf.Col(StartDateColName).Records() </span><span class="cov8" title="3">{
+                startDate, err = time.Parse("20060102", startDateStr)
+                if err != nil </span><span class="cov5" title="2">{
+                        fmt.Println(err)
+                        continue</span>
+                }
+                <span class="cov1" title="1">break</span>
+        }
+        <span class="cov5" title="2">if startDate.IsZero() </span><span class="cov1" title="1">{
+                return fmt.Errorf("%sがすべて不正です", StartDateColName)
+        }</span>
+
+        // 当月の勤務日を求める
+        <span class="cov1" title="1">workDays, err := retrieveWorkDays(startDate, appIF.CacheDirIF)
+        if err != nil </span><span class="cov1" title="1">{
+                fmt.Println(err)
+        }</span>
+
+        // 出力先ディレクトリが存在しない場合は作成する
+        <span class="cov1" title="1">if err := os.MkdirAll(pathOf.OutputDir, 0666); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        // 発注情報についてループ
+        <span class="cov1" title="1">errors := make(chan error, joinedDf.Nrow())
+        var waitGroup sync.WaitGroup
+        for _, record := range joinedDf.Maps() </span><span class="cov5" title="2">{
+                waitGroup.Add(1)
+                go func(r map[string]interface{}) </span><span class="cov5" title="2">{
+                        defer waitGroup.Done()
+                        // err := createEachSpreadSheet(r, startDate, workDays, pathOf)
+                        errors &lt;- createEachSpreadSheet(r, startDate, workDays, pathOf)
+                }</span>(record)
+                // if err := createEachSpreadSheet(record, startDate, workDays, pathOf); err != nil {
+                //         fmt.Println(err)
+                // }
+        }
+        <span class="cov1" title="1">go func() </span><span class="cov1" title="1">{
+                waitGroup.Wait()
+                close(errors)
+        }</span>()
+
+        <span class="cov1" title="1">for err := range errors </span><span class="cov5" title="2">{
+                if err != nil </span><span class="cov5" title="2">{
+                        fmt.Println(err)
+                }</span>
+        }
+
+        <span class="cov1" title="1">fmt.Println("完了しました。Enterで終了します。")
+        _, err = bufio.NewReader(appIF.InputReader).ReadString('\n')
+        if err != nil </span><span class="cov1" title="1">{
+                fmt.Println(err)
+        }</span>
+
+        <span class="cov1" title="1">return nil</span>
+}
+
+func main() <span class="cov0" title="0">{
+        if err := run(
+                &amp;AppInterfaces{
+                        ZenityIF:    RealZenity{},
+                        CacheDirIF:  RealCacheDirIF{},
+                        InputReader: os.Stdin,
+                },
+        ); err != nil </span><span class="cov0" title="0">{
+                fmt.Println(err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package main
+
+import (
+        "encoding/json"
+        "fmt"
+        "io"
+        "net/http"
+        "os"
+        "slices"
+        "strings"
+        "time"
+)
+
+// APIのレスポンス内の日付用の型
+// RFC2339形式の日時文字列ではないため。
+type CustomDate struct {
+        time.Time
+}
+
+// JSONデコード時の日付パース
+func (cd *CustomDate) UnmarshalJSON(b []byte) error <span class="cov5" title="9">{
+        date, err := time.Parse("2006-01-02", strings.Trim(string(b), "\""))
+        if err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+        <span class="cov5" title="8">cd.Time = date
+        return nil</span>
+}
+
+type HolidaysJSON struct {
+        Holidays []struct {
+                Date CustomDate
+                Name string
+        }
+}
+
+func readHolidaysFromJSON(date time.Time, cacheDirIF CacheDirInterface) (HolidaysJSON, error) <span class="cov6" title="12">{
+        jsonPath, err := HolidaysJSONPath(cacheDirIF)
+        if err != nil </span><span class="cov2" title="2">{
+                return HolidaysJSON{}, err
+        }</span>
+        // キャッシュを開く
+        <span class="cov5" title="10">jsonFile, err := os.Open(jsonPath)
+        if err != nil </span><span class="cov1" title="1">{
+                return HolidaysJSON{}, err
+        }</span>
+        <span class="cov5" title="9">defer jsonFile.Close()
+
+        // キャッシュを読む
+        jsonBytes, err := io.ReadAll(jsonFile)
+        if err != nil </span><span class="cov0" title="0">{
+                return HolidaysJSON{}, err
+        }</span>
+
+        <span class="cov5" title="9">var holidaysJSON HolidaysJSON
+        if err := json.NewDecoder(
+                strings.NewReader(string(jsonBytes)),
+        ).Decode(&amp;holidaysJSON); err != nil </span><span class="cov4" title="5">{
+                return HolidaysJSON{}, err
+        }</span>
+
+        // キャッシュが当月分のものであるか確認する
+        <span class="cov3" title="4">if len(holidaysJSON.Holidays) == 0 </span><span class="cov1" title="1">{
+                return HolidaysJSON{}, fmt.Errorf("JSONが不正")
+        }</span>
+        <span class="cov3" title="3">dateFromJSON := holidaysJSON.Holidays[0].Date
+
+        if dateFromJSON.Year() != date.Year() || dateFromJSON.Month() != date.Month() </span><span class="cov1" title="1">{
+                return HolidaysJSON{}, fmt.Errorf("当月分の祝日データではない")
+        }</span>
+
+        <span class="cov2" title="2">return holidaysJSON, nil</span>
+}
+
+func retrieveWorkDays(startDate time.Time, cacheDirIF CacheDirInterface) ([]int, error) <span class="cov4" title="6">{
+        // キャッシュを調べる
+        holidaysJSON, err := readHolidaysFromJSON(startDate, cacheDirIF)
+        if err != nil </span><span class="cov4" title="5">{
+                // キャッシュからの取得に失敗した場合は
+                // https://github.com/shogo82148/holidays-jp
+                // によるAPIにより当月の祝日を取得する
+                response, err := http.Get(
+                        fmt.Sprintf(
+                                HolidaysURL+"/%04d/%02d",
+                                startDate.Year(), startDate.Month()))
+                if err != nil </span><span class="cov2" title="2">{
+                        return []int{}, err
+                }</span>
+                <span class="cov3" title="3">defer response.Body.Close()
+
+                // 取得結果をパースする
+                body, err := io.ReadAll(response.Body)
+                if err != nil </span><span class="cov1" title="1">{
+                        return []int{}, err
+                }</span>
+
+                <span class="cov2" title="2">if err := json.NewDecoder(strings.NewReader(string(body))).Decode(&amp;holidaysJSON); err != nil </span><span class="cov1" title="1">{
+                        return []int{}, err
+                }</span>
+
+                // リクエスト結果をキャッシュする
+                <span class="cov1" title="1">jsonPath, err := HolidaysJSONPath(cacheDirIF)
+                if err != nil </span><span class="cov0" title="0">{
+                        fmt.Println(err)
+                }</span> else<span class="cov1" title="1"> {
+                        if err := os.WriteFile(jsonPath, body, 0644); err != nil </span><span class="cov0" title="0">{
+                                fmt.Println(err)
+                        }</span>
+                }
+        }
+
+        // 勤務日のリストを作成する
+        <span class="cov2" title="2">var workDays []int
+daysLoop:
+        for day := 1; day &lt;= 31; day++ </span><span class="cov9" title="62">{
+                // 存在しない日付ならばスキップ
+                date, err := time.Parse(
+                        "20060102",
+                        fmt.Sprintf(
+                                "%04d%02d%02d",
+                                startDate.Year(), startDate.Month(), day),
+                )
+                if err != nil </span><span class="cov1" title="1">{
+                        continue</span>
+                }
+
+                // 土日ならばスキップ
+                <span class="cov9" title="61">if slices.Contains([]time.Weekday{time.Saturday, time.Sunday}, date.Weekday()) </span><span class="cov7" title="18">{
+                        continue</span>
+                }
+
+                // 祝日ならばスキップ
+                <span class="cov9" title="43">for _, holiday := range holidaysJSON.Holidays </span><span class="cov10" title="65">{
+                        if holiday.Date.Day() == date.Day() </span><span class="cov3" title="3">{
+                                continue daysLoop</span>
+                        }
+                }
+
+                // 勤務日として追加
+                <span class="cov8" title="40">workDays = append(workDays, day)</span>
+        }
+
+        <span class="cov2" title="2">return workDays, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

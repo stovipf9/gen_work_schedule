@@ -1,0 +1,23 @@
+linters:
+  enable:
+    - revive
+    - gofmt
+    - govet
+    - errcheck
+    - gosimple
+    - ineffassign
+    - staticcheck
+    - unused
+
+linter-settings:
+  revive:
+    rules:
+      - name: package-comments
+        disabled: false
+        # エクスポートされた（大文字で始まる）関数、変数、定数、型にコメントがない場合に警告
+      - name: exported
+        severity: warning
+        disabled: false
+        arguments:
+          - checkPrivateReceivers
+          - sayRepetitiveInsteadOfStutters
