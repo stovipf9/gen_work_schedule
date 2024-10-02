@@ -16,7 +16,10 @@
 				"go.lintFlags": [
 					"--fast"
 				],
-				"go.coverOnSave": true
+				"go.coverOnSave": true,
+				"go.testEnvVars": {
+					"DISABLE_EXTERNAL_HTTP": "true"
+				}
 			}
 		}
 	},

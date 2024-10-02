@@ -98,3 +98,14 @@ func main() {
 		fmt.Println(err)
 	}
 }
+
+func init() {
+	if os.Getenv("DISABLE_EXTERNAL_HTTP") == "true" {
+		http.DefaultTransport = &http.Transport{
+			DisableKeepAlives: true,
+			Dial: func(_, _ string) (net.Conn, error) {
+				return nil, fmt.Errorf("外部HTTP接続は禁止されています")
+			},
+		}
+	}
+}
