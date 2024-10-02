@@ -189,6 +189,7 @@ func Test_readHolidaysFromJSON(t *testing.T) {
 func Test_retrieveWorkDays(t *testing.T) {
 	type args struct {
 		startDate time.Time
+		endDate   time.Time
 		// cacheDirIF CacheDirInterface
 	}
 	tests := []struct {
@@ -202,8 +203,11 @@ func Test_retrieveWorkDays(t *testing.T) {
 		wantErr     bool
 	}{
 		{
-			name:        "正常系",
-			args:        args{startDate: time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC)},
+			name: "正常系",
+			args: args{
+				startDate: time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
+				endDate:   time.Date(2024, 7, 31, 0, 0, 0, 0, time.UTC),
+			},
 			cacheJSON:   ``,
 			holidaysURL: HolidaysURL + "/2024/07",
 			responder: httpmock.NewJsonResponderOrPanic(
@@ -232,8 +236,11 @@ func Test_retrieveWorkDays(t *testing.T) {
 			wantErr:  false,
 		},
 		{
-			name:      "キャッシュあり",
-			args:      args{startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)},
+			name: "キャッシュあり",
+			args: args{
+				startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC),
+				endDate:   time.Date(2024, 6, 30, 0, 0, 0, 0, time.UTC),
+			},
 			cacheJSON: `{"holidays":[{"date": "2024-06-03"}]}`,
 			want: []int{
 				4, 5, 6, 7,
@@ -244,8 +251,11 @@ func Test_retrieveWorkDays(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:        "APIリクエストでエラー",
-			args:        args{startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)},
+			name: "APIリクエストでエラー",
+			args: args{
+				startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC),
+				endDate:   time.Date(2024, 6, 30, 0, 0, 0, 0, time.UTC),
+			},
 			cacheJSON:   ``,
 			holidaysURL: HolidaysURL + "/2024/06",
 			responder: func(_ *http.Request) (*http.Response, error) {
@@ -255,8 +265,11 @@ func Test_retrieveWorkDays(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:        "不完全なレスポンスボディ",
-			args:        args{startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)},
+			name: "不完全なレスポンスボディ",
+			args: args{
+				startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC),
+				endDate:   time.Date(2024, 6, 30, 0, 0, 0, 0, time.UTC),
+			},
 			cacheJSON:   ``,
 			holidaysURL: HolidaysURL + "/2024/06",
 			responder: func(_ *http.Request) (*http.Response, error) {
@@ -269,8 +282,11 @@ func Test_retrieveWorkDays(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:        "レスポンスボディがJSONとして不正",
-			args:        args{startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC)},
+			name: "レスポンスボディがJSONとして不正",
+			args: args{
+				startDate: time.Date(2024, 6, 1, 0, 0, 0, 0, time.UTC),
+				endDate:   time.Date(2024, 6, 30, 0, 0, 0, 0, time.UTC),
+			},
 			cacheJSON:   ``,
 			holidaysURL: HolidaysURL + "/2024/06",
 			responder:   httpmock.NewJsonResponderOrPanic(http.StatusOK, `{`),
@@ -295,7 +311,7 @@ func Test_retrieveWorkDays(t *testing.T) {
 			defer httpmock.DeactivateAndReset()
 			httpmock.RegisterResponder("GET", tt.holidaysURL, tt.responder)
 
-			got, err := retrieveWorkDays(tt.args.startDate, mockCacheDirIF)
+			got, err := retrieveWorkDays(tt.args.startDate, tt.args.endDate, mockCacheDirIF)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("retrieveWorkDays() error = %v, wantErr %v", err, tt.wantErr)
 				return

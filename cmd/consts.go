@@ -12,7 +12,9 @@ const (
 	CustomerColName       = "顧客名"
 	IssueColName          = "案件名"
 	StartDateColName      = "作業開始日"
+	EndDateColName        = "作業終了日"
 	FullNameColName       = "姓名"
+	RepresentativeColName = "担当者名"
 )
 
 func CacheDir(cacheDirIF CacheDirInterface) (string, error) {

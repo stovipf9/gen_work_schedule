@@ -9,23 +9,82 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func FirstSheet(
-	outFile *excelize.File,
-	record map[string]interface{},
-) error {
-	for _, colName := range []string{ProjectCodeColName, DepartmentCodeColName, CustomerColName, IssueColName} {
-		if record[colName] == nil {
-			return fmt.Errorf("value of %v is nil", colName)
+type OrderInfo struct {
+	Company        string
+	FamilyName     string
+	OrderNo        string
+	Issue          string
+	ProjectCode    string
+	Customer       string
+	DepartmentCode string
+	// Amount         uint
+	// Unit           string
+	StartDate      time.Time
+	EndDate        time.Time
+	FullName       string
+	Representative string
+}
+
+func ToOrderInfo(record map[string]interface{}) (OrderInfo, error) {
+	var ret OrderInfo
+
+	// 文字列型
+	for colName, retv := range map[string]*string{
+		CompanyColName:        &ret.Company,
+		FamilyNameColName:     &ret.FamilyName,
+		OrderNoColName:        &ret.OrderNo,
+		IssueColName:          &ret.Issue,
+		ProjectCodeColName:    &ret.ProjectCode,
+		CustomerColName:       &ret.Customer,
+		DepartmentCodeColName: &ret.DepartmentCode,
+		FullNameColName:       &ret.FullName,
+		RepresentativeColName: &ret.Representative,
+	} {
+		if v, ok := record[colName]; ok {
+			if strVal, ok := v.(string); ok {
+				*retv = strVal
+			} else {
+				return OrderInfo{}, fmt.Errorf("%v is not string", strVal)
+			}
+		} else {
+			return OrderInfo{}, fmt.Errorf("there is no key: %v", colName)
 		}
 	}
 
+	// 日時型
+	for colName, retv := range map[string]*time.Time{
+		StartDateColName: &ret.StartDate,
+		EndDateColName:   &ret.EndDate,
+	} {
+		if v, ok := record[colName]; ok {
+			if strVal, ok := v.(string); ok {
+				dt, err := time.Parse("20060102", strVal)
+				if err != nil {
+					return OrderInfo{}, err
+				}
+				*retv = dt
+			} else {
+				return OrderInfo{}, fmt.Errorf("%v is not string", v)
+			}
+		} else {
+			return OrderInfo{}, fmt.Errorf("there is no key: %v", colName)
+		}
+	}
+
+	return ret, nil
+}
+
+func FirstSheet(
+	outFile *excelize.File,
+	orderInfo OrderInfo,
+) error {
 	// 1セル1文字ずつ入力する情報
 	for _, v := range []struct {
 		leftmostCell string
-		header       string
+		str          string
 	}{
-		{leftmostCell: "D18", header: ProjectCodeColName},
-		{leftmostCell: "D19", header: DepartmentCodeColName},
+		{leftmostCell: "D18", str: orderInfo.ProjectCode},
+		{leftmostCell: "D19", str: orderInfo.DepartmentCode},
 	} {
 		// 左端のセル名を取得
 		col, row, err := excelize.CellNameToCoordinates(v.leftmostCell)
@@ -34,7 +93,7 @@ func FirstSheet(
 			continue
 		}
 		// 左から1文字ずつ記入
-		for colShift, ch := range record[v.header].(string) {
+		for colShift, ch := range v.str {
 			cellName, err := excelize.CoordinatesToCellName(
 				col+colShift, row)
 			if err != nil {
@@ -50,14 +109,14 @@ func FirstSheet(
 
 	// 1セルに文字列として入力する情報
 	for _, v := range []struct {
-		cell   string
-		header string
+		cell string
+		str  string
 	}{
-		{cell: "D20", header: CustomerColName},
-		{cell: "D21", header: IssueColName},
+		{cell: "D20", str: orderInfo.Customer},
+		{cell: "D21", str: orderInfo.Issue},
 	} {
 		if err := outFile.SetCellValue(
-			BeforeUseSheetName, v.cell, record[v.header].(string),
+			BeforeUseSheetName, v.cell, v.str,
 		); err != nil {
 			fmt.Println(err)
 		}
@@ -68,24 +127,24 @@ func FirstSheet(
 
 func SecondSheet(
 	outFile *excelize.File,
-	record map[string]interface{},
-	startDate time.Time,
-	workDays []int,
+	orderInfo OrderInfo,
+	cacheDirIF CacheDirInterface,
 ) error {
-	for _, colName := range []string{OrderNoColName, FullNameColName, IssueColName} {
-		if record[colName] == nil {
-			return fmt.Errorf("value %v is nil", colName)
-		}
+	workDays, err := retrieveWorkDays(orderInfo.StartDate, orderInfo.EndDate, cacheDirIF)
+	if err != nil {
+		fmt.Println(err)
 	}
-	// 勤務表の上部
+
+	// 勤務表の上部・下部
 	for _, v := range []struct {
 		cell  string
 		value interface{}
 	}{
-		{cell: "G9", value: startDate.Year()},
-		{cell: "K9", value: int(startDate.Month())},
-		{cell: "E14", value: "S-" + record[OrderNoColName].(string)},
-		{cell: "S16", value: record[FullNameColName].(string)},
+		{cell: "G9", value: orderInfo.StartDate.Year()},
+		{cell: "K9", value: int(orderInfo.StartDate.Month())},
+		{cell: "E14", value: "S-" + orderInfo.OrderNo},
+		{cell: "S16", value: orderInfo.FullName},
+		{cell: "S60", value: orderInfo.Representative},
 	} {
 		if err := outFile.SetCellValue(OutsourceSheetName, v.cell, v.value); err != nil {
 			fmt.Println(err)
@@ -112,7 +171,7 @@ func SecondSheet(
 			value   interface{}
 		}{
 			{colName: "C", value: time.Duration(8) * time.Hour},
-			{colName: "N", value: record[IssueColName].(string)},
+			{colName: "N", value: orderInfo.Issue},
 		} {
 			// 勤務日でないならばセルを空とする
 			if !slices.Contains(workDays, day) {
@@ -132,16 +191,20 @@ func SecondSheet(
 
 func createEachSpreadSheet(
 	record map[string]interface{},
-	startDate time.Time,
-	workDays []int,
 	pathOf PathOf,
+	cacheDirIF CacheDirInterface,
 ) error {
+	orderInfo, err := ToOrderInfo(record)
+	if err != nil {
+		return err
+	}
+
 	outPath := pathOf.OutputDir + fmt.Sprintf(
 		"/S-%s【%s】%s_%04d%02d.xlsx",
-		record[OrderNoColName],
-		record[CompanyColName],
-		record[FamilyNameColName],
-		startDate.Year(), startDate.Month())
+		orderInfo.OrderNo,
+		orderInfo.Company,
+		orderInfo.FamilyName,
+		orderInfo.StartDate.Year(), orderInfo.StartDate.Month())
 	if err := copyFile(pathOf.TemplateXlsx, outPath); err != nil {
 		return err
 	}
@@ -152,12 +215,12 @@ func createEachSpreadSheet(
 	defer outFile.Close()
 
 	// 「ご使用の前に」シート
-	if err := FirstSheet(outFile, record); err != nil {
+	if err := FirstSheet(outFile, orderInfo); err != nil {
 		return err
 	}
 
 	// 「システム要員作業実績報告(委任)」シート
-	if err := SecondSheet(outFile, record, startDate, workDays); err != nil {
+	if err := SecondSheet(outFile, orderInfo, cacheDirIF); err != nil {
 		return err
 	}
 

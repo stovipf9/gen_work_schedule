@@ -3,9 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"sync"
-	"time"
 )
 
 func run(appIF *AppInterfaces) error {
@@ -32,26 +33,6 @@ func run(appIF *AppInterfaces) error {
 		return err
 	}
 
-	// 発注情報より作業開始日を読み取る
-	var startDate time.Time
-	for _, startDateStr := range joinedDf.Col(StartDateColName).Records() {
-		startDate, err = time.Parse("20060102", startDateStr)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		break
-	}
-	if startDate.IsZero() {
-		return fmt.Errorf("%sがすべて不正です", StartDateColName)
-	}
-
-	// 当月の勤務日を求める
-	workDays, err := retrieveWorkDays(startDate, appIF.CacheDirIF)
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	// 出力先ディレクトリが存在しない場合は作成する
 	if err := os.MkdirAll(pathOf.OutputDir, 0666); err != nil {
 		return err
@@ -64,7 +45,7 @@ func run(appIF *AppInterfaces) error {
 		waitGroup.Add(1)
 		go func(r map[string]interface{}) {
 			defer waitGroup.Done()
-			errors <- createEachSpreadSheet(r, startDate, workDays, pathOf)
+			errors <- createEachSpreadSheet(r, pathOf, appIF.CacheDirIF)
 		}(record)
 	}
 	go func() {

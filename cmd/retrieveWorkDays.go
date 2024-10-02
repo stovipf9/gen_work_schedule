@@ -72,7 +72,11 @@ func readHolidaysFromJSON(date time.Time, cacheDirIF CacheDirInterface) (Holiday
 	return holidaysJSON, nil
 }
 
-func retrieveWorkDays(startDate time.Time, cacheDirIF CacheDirInterface) ([]int, error) {
+func retrieveWorkDays(
+	startDate time.Time,
+	endDate time.Time,
+	cacheDirIF CacheDirInterface,
+) ([]int, error) {
 	// キャッシュを調べる
 	holidaysJSON, err := readHolidaysFromJSON(startDate, cacheDirIF)
 	if err != nil {
@@ -112,7 +116,7 @@ func retrieveWorkDays(startDate time.Time, cacheDirIF CacheDirInterface) ([]int,
 	// 勤務日のリストを作成する
 	var workDays []int
 daysLoop:
-	for day := 1; day <= 31; day++ {
+	for day := startDate.Day(); day <= endDate.Day(); day++ {
 		// 存在しない日付ならばスキップ
 		date, err := time.Parse(
 			"20060102",
