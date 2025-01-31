@@ -14,7 +14,7 @@ const (
 	StartDateColName      = "作業開始日"
 	EndDateColName        = "作業終了日"
 	FullNameColName       = "姓名"
-	RepresentativeColName = "担当者名"
+	RepresentativeColName = "担当責任者"
 )
 
 func CacheDir(cacheDirIF CacheDirInterface) (string, error) {

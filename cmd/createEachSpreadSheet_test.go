@@ -176,10 +176,10 @@ func TestSecondSheet(t *testing.T) {
 				t.Errorf("姓名: got = %v, want = %v", gotCellValue, tt.args.orderInfo.FullName)
 			}
 
-			// 勤務表下部の担当者名
+			// 勤務表下部の担当責任者
 			gotCellValue, _ = outFile.GetCellValue(SheetName, "S60")
 			if gotCellValue != tt.args.orderInfo.Representative {
-				t.Errorf("担当者名: got = %v, want = %v", gotCellValue, tt.args.orderInfo.Representative)
+				t.Errorf("担当責任者: got = %v, want = %v", gotCellValue, tt.args.orderInfo.Representative)
 			}
 
 			// 各勤務日
@@ -234,7 +234,7 @@ func Test_createEachSpreadSheet(t *testing.T) {
 					"姓名":     "山田 太郎",
 					"作業開始日":  "20240101",
 					"作業終了日":  "20240131",
-					"担当者名":   "ABC XYZ",
+					"担当責任者":  "ABC XYZ",
 				},
 				startDate: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
 				workDays:  []int{1, 3},

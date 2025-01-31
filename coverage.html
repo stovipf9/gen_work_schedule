@@ -168,7 +168,7 @@ const (
         StartDateColName      = "作業開始日"
         EndDateColName        = "作業終了日"
         FullNameColName       = "姓名"
-        RepresentativeColName = "担当者名"
+        RepresentativeColName = "担当責任者"
 )
 
 func CacheDir(cacheDirIF CacheDirInterface) (string, error) <span class="cov10" title="58">{
@@ -237,9 +237,9 @@ func ToOrderInfo(record map[string]interface{}) (OrderInfo, error) <span class="
                 DepartmentCodeColName: &amp;ret.DepartmentCode,
                 FullNameColName:       &amp;ret.FullName,
                 RepresentativeColName: &amp;ret.Representative,
-        } </span><span class="cov7" title="21">{
-                if v, ok := record[colName]; ok </span><span class="cov7" title="20">{
-                        if strVal, ok := v.(string); ok </span><span class="cov7" title="19">{
+        } </span><span class="cov7" title="18">{
+                if v, ok := record[colName]; ok </span><span class="cov7" title="17">{
+                        if strVal, ok := v.(string); ok </span><span class="cov7" title="16">{
                                 *retv = strVal
                         }</span> else<span class="cov1" title="1"> {
                                 return OrderInfo{}, fmt.Errorf("%v is not string", strVal)
