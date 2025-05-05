@@ -4,6 +4,7 @@ const (
 	HolidaysURL           = "https://holidays-jp.shogo82148.com"
 	BeforeUseSheetName    = "ご使用の前に"
 	OutsourceSheetName    = "システム要員作業実績報告(委任)"
+	QuotationDelegationSheetName = "御見積書（委任）"
 	CompanyColName        = "会社"
 	FamilyNameColName     = "姓"
 	OrderNoColName        = "発注番号"
@@ -14,6 +15,7 @@ const (
 	StartDateColName      = "作業開始日"
 	EndDateColName        = "作業終了日"
 	FullNameColName       = "姓名"
+	DepartmentNameColName = "納入物の提出場所"
 	RepresentativeColName = "担当責任者"
 )
 

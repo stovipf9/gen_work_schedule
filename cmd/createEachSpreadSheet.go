@@ -22,6 +22,7 @@ type OrderInfo struct {
 	StartDate      time.Time
 	EndDate        time.Time
 	FullName       string
+	DepartmentName string
 	Representative string
 }
 
@@ -38,6 +39,7 @@ func ToOrderInfo(record map[string]interface{}) (OrderInfo, error) {
 		CustomerColName:       &ret.Customer,
 		DepartmentCodeColName: &ret.DepartmentCode,
 		FullNameColName:       &ret.FullName,
+		DepartmentNameColName: &ret.DepartmentName,
 		RepresentativeColName: &ret.Representative,
 	} {
 		if v, ok := record[colName]; ok {
@@ -144,6 +146,7 @@ func SecondSheet(
 		{cell: "K9", value: int(orderInfo.StartDate.Month())},
 		{cell: "E14", value: "S-" + orderInfo.OrderNo},
 		{cell: "S16", value: orderInfo.FullName},
+		{cell: "B60", value: "BIPROGY株式会社　関西支社　" + orderInfo.DepartmentName},
 		{cell: "S60", value: orderInfo.Representative},
 	} {
 		if err := outFile.SetCellValue(OutsourceSheetName, v.cell, v.value); err != nil {
@@ -189,6 +192,17 @@ func SecondSheet(
 	return nil
 }
 
+func ThirdSheet(
+	outFile *excelize.File,
+	orderInfo OrderInfo,
+) error {
+	if err := outFile.SetCellValue(QuotationDelegationSheetName, "I26", "BIPROGY株式会社　関西支社　"+orderInfo.DepartmentName); err != nil {
+		fmt.Println(err)
+	}
+
+	return nil
+}
+
 func createEachSpreadSheet(
 	record map[string]interface{},
 	pathOf PathOf,
@@ -221,6 +235,11 @@ func createEachSpreadSheet(
 
 	// 「システム要員作業実績報告(委任)」シート
 	if err := SecondSheet(outFile, orderInfo, cacheDirIF); err != nil {
+		return err
+	}
+
+	// 「御見積書（委任）」シート
+	if err := ThirdSheet(outFile, orderInfo); err != nil {
 		return err
 	}
 
