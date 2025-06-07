@@ -36,7 +36,13 @@ func getOrderTable(path string) (dataframe.DataFrame, error) {
 		// 空の行は読み飛ばす
 		// (GetSheetDimension()の不具合か、空行にもかかわらず範囲に含まれる場合があるため)
 		if len(strings.Join(row, "")) == 0 {
-			continue
+			if len(records) == 0 {
+				// 前方の空行は読み飛ばすのみ
+				continue
+			} else {
+				// 後方の空行は読み取りを終える
+				break
+			}
 		}
 
 		var record []string
