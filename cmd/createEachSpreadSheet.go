@@ -146,7 +146,7 @@ func SecondSheet(
 		{cell: "K9", value: int(orderInfo.StartDate.Month())},
 		{cell: "E14", value: "S-" + orderInfo.OrderNo},
 		{cell: "S16", value: orderInfo.FullName},
-		{cell: "B60", value: "BIPROGY株式会社　関西支社　" + orderInfo.DepartmentName},
+		{cell: "B60", value: orderInfo.DepartmentName},
 		{cell: "S60", value: orderInfo.Representative},
 	} {
 		if err := outFile.SetCellValue(OutsourceSheetName, v.cell, v.value); err != nil {
@@ -196,7 +196,7 @@ func ThirdSheet(
 	outFile *excelize.File,
 	orderInfo OrderInfo,
 ) error {
-	if err := outFile.SetCellValue(QuotationDelegationSheetName, "I26", "BIPROGY株式会社　関西支社　"+orderInfo.DepartmentName); err != nil {
+	if err := outFile.SetCellValue(QuotationDelegationSheetName, "I26", orderInfo.DepartmentName); err != nil {
 		fmt.Println(err)
 	}
 
