@@ -1,0 +1,1136 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>cmd: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">gen_work_schedule/cmd/SLogger.go (0.0%)</option>
+				
+				<option value="file1">gen_work_schedule/cmd/cache_service.go (95.7%)</option>
+				
+				<option value="file2">gen_work_schedule/cmd/each_excel_schedule_maker.go (90.2%)</option>
+				
+				<option value="file3">gen_work_schedule/cmd/generate_service.go (100.0%)</option>
+				
+				<option value="file4">gen_work_schedule/cmd/holidays_json.go (80.0%)</option>
+				
+				<option value="file5">gen_work_schedule/cmd/lock_manager.go (100.0%)</option>
+				
+				<option value="file6">gen_work_schedule/cmd/order.go (100.0%)</option>
+				
+				<option value="file7">gen_work_schedule/cmd/order_service.go (88.6%)</option>
+				
+				<option value="file8">gen_work_schedule/cmd/retrieve_workdays_service.go (90.5%)</option>
+				
+				<option value="file9">gen_work_schedule/cmd/roster_service.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package cmd
+
+import (
+        "log/slog"
+        "os"
+
+        "github.com/spf13/afero"
+)
+
+type SLogger struct {
+        slog.Logger
+        logFile afero.File
+}
+
+func NewSLogger(fs afero.Fs, logFileName string) *SLogger <span class="cov0" title="0">{
+        stdoutLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+        logFile, err := fs.OpenFile(
+                logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+        if err != nil </span><span class="cov0" title="0">{
+                stdoutLogger.Warn(err.Error())
+                return &amp;SLogger{*stdoutLogger, nil}
+        }</span>
+
+        <span class="cov0" title="0">return &amp;SLogger{*slog.New(slog.NewJSONHandler(logFile, nil)), logFile}</span>
+}
+
+// logger.Logger interface methods
+func (s *SLogger) Print(message string) <span class="cov0" title="0">{
+        s.Logger.Debug(message)
+}</span>
+
+func (s *SLogger) Trace(message string) <span class="cov0" title="0">{
+        s.Logger.Debug(message)
+}</span>
+
+func (s *SLogger) Debug(message string) <span class="cov0" title="0">{
+        s.Logger.Debug(message)
+}</span>
+
+func (s *SLogger) Info(message string) <span class="cov0" title="0">{
+        s.Logger.Info(message)
+}</span>
+
+func (s *SLogger) Warning(message string) <span class="cov0" title="0">{
+        s.Logger.Warn(message)
+}</span>
+
+func (s *SLogger) Error(message string) <span class="cov0" title="0">{
+        s.Logger.Error(message)
+}</span>
+
+func (s *SLogger) Fatal(message string) <span class="cov0" title="0">{
+        s.Logger.Error(message)
+}</span>
+
+func (s *SLogger) Close() <span class="cov0" title="0">{
+        if s.logFile != nil </span><span class="cov0" title="0">{
+                s.logFile.Close()
+        }</span>
+}
+
+type LogLevel int
+
+const (
+        TRACE LogLevel = iota + 1
+        DEBUG
+        INFO
+        WARNING
+        ERROR
+        FATAL
+)
+
+func (s *SLogger) Log(level LogLevel, err error) error <span class="cov0" title="0">{
+        if err == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">map[LogLevel]func(string){
+                TRACE:   s.Trace,
+                DEBUG:   s.Debug,
+                INFO:    s.Info,
+                WARNING: s.Warning,
+                ERROR:   s.Error,
+                FATAL:   s.Fatal,
+        }[level](err.Error())
+        return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package cmd
+
+import (
+        "encoding/json"
+        "fmt"
+        "path/filepath"
+        "strings"
+        "time"
+
+        "github.com/spf13/afero"
+)
+
+var filelm = NewLockManager(func(key string) string <span class="cov10" title="15">{ return key }</span>)
+
+const (
+        PATHS_JSON    = "paths.json"
+        HOLIDAYS_JSON = "holidays_%s.json"
+)
+
+type CacheService struct {
+        cacheDirFs afero.Fs
+}
+
+func NewCacheService(
+        cacheDirfs afero.Fs,
+        dedicatedCacheDirName string,
+) *CacheService <span class="cov8" title="11">{
+        return &amp;CacheService{cacheDirFs: afero.NewBasePathFs(cacheDirfs, dedicatedCacheDirName)}
+}</span>
+
+func (c CacheService) CacheDirFs() afero.Fs <span class="cov0" title="0">{
+        return c.cacheDirFs
+}</span>
+
+func (c CacheService) LoadCachedPaths() (map[PathKey]string, error) <span class="cov3" title="2">{
+        paths, err := LoadCachedData[map[PathKey]string](
+                c.cacheDirFs,
+                PATHS_JSON,
+        )
+        if paths == nil || err != nil </span><span class="cov1" title="1">{
+                return make(map[PathKey]string), err
+        }</span>
+
+        <span class="cov1" title="1">return paths, nil</span>
+}
+
+func (c CacheService) CachePaths(paths map[PathKey]string) error <span class="cov3" title="2">{
+        return CacheData(
+                c.cacheDirFs,
+                paths,
+                PATHS_JSON,
+        )
+}</span>
+
+func (CacheService) dateToFileName(date time.Time) string <span class="cov6" title="6">{
+        return fmt.Sprintf(HOLIDAYS_JSON, date.Format("200601"))
+}</span>
+
+func (c CacheService) LoadCachedHolidays(date time.Time) (
+        holidays HolidaysJson,
+        _ error,
+) <span class="cov5" title="4">{
+        holidays, err := LoadCachedData[HolidaysJson](
+                c.cacheDirFs,
+                CacheService{}.dateToFileName(date),
+        )
+        if err != nil </span><span class="cov1" title="1">{
+                return holidays, err
+        }</span>
+
+        // キャッシュが当月分のものであるか確認する
+        <span class="cov4" title="3">if len(holidays.Holidays) == 0 </span><span class="cov1" title="1">{
+                // 祝日0日
+                return HolidaysJson{}, fmt.Errorf("JSONが不正")
+        }</span>
+        <span class="cov3" title="2">dateFromJson := holidays.Holidays[0].Date
+        if dateFromJson.Year() != date.Year() ||
+                dateFromJson.Month() != date.Month() </span><span class="cov1" title="1">{
+                return HolidaysJson{}, fmt.Errorf("当月分の祝日データではない")
+        }</span>
+
+        <span class="cov1" title="1">return holidays, nil</span>
+}
+
+func (c CacheService) CacheHolidays(rawHolidays []byte) error <span class="cov4" title="3">{
+
+        var holidays HolidaysJson
+        if err := json.Unmarshal(rawHolidays, &amp;holidays); err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+        <span class="cov3" title="2">if len(holidays.Holidays) == 0 </span><span class="cov1" title="1">{
+                return fmt.Errorf("No holidays in %v", rawHolidays)
+        }</span>
+
+        <span class="cov1" title="1">return CacheData(
+                c.cacheDirFs,
+                rawHolidays,
+                CacheService{}.dateToFileName(holidays.Holidays[0].Date.Time),
+        )</span>
+}
+
+// func (c CacheService) LoadCachedWindowPosSize() (WindowPosSize, error) {
+//         return loadCachedData[WindowPosSize](
+//                 c.cacheDirFs,
+//                 WINDOW_POS_SIZE_JSON,
+//         )
+// }
+
+// func (c CacheService) CacheWindowPosSize(windowRect WindowPosSize) error {
+//         return cacheData(
+//                 c.cacheDirFs,
+//                 windowRect,
+//                 WINDOW_POS_SIZE_JSON,
+//         )
+// }
+
+func CacheData[T any](
+        fs afero.Fs,
+        data T,
+        jsonPath string,
+) error <span class="cov6" title="6">{
+        // キャッシュファイルを読み書きロック
+        lock := filelm.GetLock(jsonPath)
+        lock.Lock()
+        defer lock.Unlock()
+
+        // デシリアライズ
+        // 既にデータがバイト列なら不要
+        jsonBytes, ok := any(data).([]byte)
+        if !ok </span><span class="cov6" title="5">{
+                var err error
+                jsonBytes, err = json.Marshal(data)
+                if err != nil </span><span class="cov1" title="1">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov6" title="5">if err := fs.MkdirAll(filepath.Dir(jsonPath), 0755); err != nil </span><span class="cov3" title="2">{
+                return err
+        }</span>
+
+        // 書き込み
+        <span class="cov4" title="3">if err := afero.WriteFile(fs, jsonPath, jsonBytes, 0666); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov4" title="3">return nil</span>
+}
+
+func LoadCachedData[T any](
+        fs afero.Fs,
+        jsonPath string,
+) (cachedData T, _ error) <span class="cov8" title="9">{
+        lock := filelm.GetLock(jsonPath)
+        lock.RLock()
+        defer lock.RUnlock()
+
+        // キャッシュを読み込む
+        jsonBytes, err := afero.ReadFile(fs, jsonPath)
+        if err != nil </span><span class="cov4" title="3">{
+                return cachedData, err
+        }</span>
+
+        // シリアライズ
+        <span class="cov6" title="6">if err := json.NewDecoder(
+                strings.NewReader(string(jsonBytes)),
+        ).Decode(&amp;cachedData); err != nil </span><span class="cov1" title="1">{
+                return cachedData, err
+        }</span>
+
+        <span class="cov6" title="5">return cachedData, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package cmd
+
+import (
+        "io"
+        "path/filepath"
+        "slices"
+        "strconv"
+        "strings"
+        "time"
+
+        "github.com/spf13/afero"
+        "github.com/xuri/excelize/v2"
+)
+
+type EachExcelScheduleMaker struct {
+        fs               afero.Fs
+        order            *Order
+        workdays         []int
+        fullName         string
+        outputFilePath   string
+        templateFilePath string
+}
+
+func NewEachExcelScheduleMaker(
+        fs afero.Fs,
+        order *Order,
+        workdays []int,
+        fullName string,
+        outputFilePath string,
+        templatePath string,
+) *EachExcelScheduleMaker <span class="cov5" title="18">{
+        return &amp;EachExcelScheduleMaker{
+                fs:               fs,
+                order:            order,
+                workdays:         workdays,
+                fullName:         fullName,
+                outputFilePath:   outputFilePath,
+                templateFilePath: templatePath,
+        }
+}</span>
+
+func (e *EachExcelScheduleMaker) MakeSchedule() error <span class="cov4" title="6">{
+        // テンプレートからコピー
+        if err := e.copyFile(e.templateFilePath, e.outputFilePath); err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        // 出力ファイルを開く
+        <span class="cov3" title="5">outFile, err := excelize.OpenFile(e.outputFilePath)
+        if err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+        <span class="cov3" title="4">defer outFile.Close()
+
+        // 「ご使用の前に」シート
+        if err := e.fillBeforeUseSheet(outFile); err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        // 「システム要員作業実績報告(委任)」シート
+        <span class="cov2" title="3">if err := e.fillOutSourceSheet(outFile); err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        // 「御見積書 (委任)」シート
+        <span class="cov2" title="2">if err := e.fillQuotDelegationSheet(outFile); err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        // セル再計算を行い
+        <span class="cov1" title="1">if err := outFile.UpdateLinkedValue(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        // 編集結果を保存
+        <span class="cov1" title="1">if err := outFile.Save(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov1" title="1">return nil</span>
+}
+
+func (e *EachExcelScheduleMaker) fillBeforeUseSheet(
+        outFile *excelize.File,
+) error <span class="cov4" title="6">{
+        // 1セル1文字ずつ入力する情報
+        for _, v := range []struct {
+                leftmostCell string
+                str          string
+        }{
+                {leftmostCell: "D18", str: e.order.ProjectCode},
+                {leftmostCell: "D19", str: e.order.DepartmentCode},
+        } </span><span class="cov5" title="11">{
+                // 左端のセル名を取得
+                col, row, err := excelize.CellNameToCoordinates(v.leftmostCell)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                // 左から1文字ずつ記入
+                <span class="cov5" title="11">for colShift, ch := range v.str </span><span class="cov5" title="15">{
+                        cellName, err := excelize.CoordinatesToCellName(
+                                col+colShift, row,
+                        )
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov5" title="15">if err := outFile.SetCellValue(
+                                BeforeUseSheetName, cellName, string(ch),
+                        ); err != nil </span><span class="cov1" title="1">{
+                                return err
+                        }</span>
+                }
+        }
+
+        // 1セルに文字列として入力する情報
+        <span class="cov3" title="5">for _, v := range []struct {
+                cell string
+                str  string
+        }{
+                {cell: "D20", str: e.order.Customer},
+                {cell: "D21", str: e.order.Issue},
+        } </span><span class="cov4" title="9">{
+                if err := outFile.SetCellValue(
+                        BeforeUseSheetName, v.cell, v.str,
+                ); err != nil </span><span class="cov1" title="1">{
+                        return err
+                }</span>
+        }
+
+        <span class="cov3" title="4">return nil</span>
+}
+
+func (e *EachExcelScheduleMaker) fillOutSourceSheet(
+        outFile *excelize.File,
+) error <span class="cov4" title="6">{
+
+        // 勤務表の上部・下部
+        for _, v := range []struct {
+                cell  string
+                value any
+        }{
+                {cell: "G9", value: e.order.StartDate.Year()},
+                {cell: "K9", value: int(e.order.StartDate.Month())},
+                {cell: "E14", value: "S-" + e.order.OrderNo},
+                {cell: "S16", value: e.fullName},
+                {cell: "B60", value: e.order.Department},
+                {cell: "S60", value: e.order.Representative},
+        } </span><span class="cov6" title="26">{
+                if err := outFile.SetCellValue(OutsourceSheetName, v.cell, v.value); err != nil </span><span class="cov2" title="2">{
+                        return err
+                }</span>
+        }
+
+        // 各勤務日
+        <span class="cov3" title="4">for row := 20; row &lt;= 50; row++ </span><span class="cov8" title="94">{
+                dayStr, err := outFile.GetCellValue(
+                        OutsourceSheetName, "B"+strconv.Itoa(row))
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="94">day, err := strconv.Atoi(strings.TrimSpace(dayStr))
+                if err != nil </span><span class="cov1" title="1">{
+                        return err
+                }</span>
+
+                // 1行分埋める
+                <span class="cov8" title="93">for _, v := range []struct {
+                        colName string
+                        value   any
+                }{
+                        {colName: "C", value: time.Duration(8) * time.Hour}, //定時想定
+                        {colName: "N", value: e.order.Issue},
+                } </span><span class="cov10" title="186">{
+                        // 勤務日でないならばセルを空とする
+                        if !slices.Contains(e.workdays, day) </span><span class="cov9" title="144">{
+                                v.value = nil
+                        }</span>
+
+                        <span class="cov10" title="186">if err := outFile.SetCellValue(
+                                OutsourceSheetName, v.colName+strconv.Itoa(row), v.value,
+                        ); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                }
+        }
+
+        <span class="cov2" title="3">return nil</span>
+}
+
+func (e *EachExcelScheduleMaker) fillQuotDelegationSheet(
+        outFile *excelize.File,
+) error <span class="cov3" title="4">{
+        return outFile.SetCellValue(
+                QuotationDelegationSheetName, "I26", e.order.Department,
+        )
+}</span>
+
+func (e *EachExcelScheduleMaker) copyFile(src string, dst string) error <span class="cov4" title="10">{
+        sourceFile, err := e.fs.Open(src)
+        if err != nil </span><span class="cov2" title="2">{
+                return err
+        }</span>
+        <span class="cov4" title="8">defer sourceFile.Close()
+
+        // コピー先フォルダが存在しない場合は作成
+        if err := e.fs.MkdirAll(filepath.Dir(dst), 0666); err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+
+        <span class="cov4" title="7">destFile, err := e.fs.Create(dst)
+        if err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+        <span class="cov4" title="6">defer destFile.Close()
+
+        _, err = io.Copy(destFile, sourceFile)
+        return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package cmd
+
+import (
+        "fmt"
+        "path/filepath"
+        "sync"
+        "time"
+
+        "github.com/spf13/afero"
+)
+
+type WorkdaysRetriever interface {
+        RetrieveWorkdays(
+                startDate time.Time,
+                endDate time.Time,
+        ) ([]int, error)
+}
+
+type EachScheduleMaker interface {
+        MakeSchedule() error
+}
+type EachScheduleMakerFactory func(
+        order *Order,
+        workdays []int,
+        fullName string,
+        outputFilePath string,
+        templatePath string,
+) EachScheduleMaker
+
+func NewScheduleMakerFactoryWithFs(fs afero.Fs) EachScheduleMakerFactory <span class="cov1" title="1">{
+        return func(
+                order *Order,
+                workdays []int,
+                fullName string,
+                outputFilePath string,
+                templatePath string,
+        ) EachScheduleMaker </span><span class="cov1" title="1">{
+                return NewEachExcelScheduleMaker(
+                        fs,
+                        order, workdays, fullName, outputFilePath, templatePath,
+                )
+        }</span>
+}
+
+type GenerateService struct {
+        workdaysRetriever    WorkdaysRetriever
+        newEachScheduleMaker EachScheduleMakerFactory
+}
+
+func NewGenerateService(
+        workdaysRetriever WorkdaysRetriever,
+        newEachScheduleMaker EachScheduleMakerFactory,
+) *GenerateService <span class="cov10" title="3">{
+        return &amp;GenerateService{
+                workdaysRetriever:    workdaysRetriever,
+                newEachScheduleMaker: newEachScheduleMaker,
+        }
+}</span>
+
+func (g *GenerateService) Generate(
+        orders []Order,
+        rosterRecords map[string]string,
+        outputDirPath string,
+        templateFilePath string,
+) (eachResults map[string]error, criticalError error) <span class="cov10" title="3">{
+        // 発注・名簿を姓で結合してマップとする
+        joinedMap := make(map[Order]string, len(orders))
+        for _, order := range orders </span><span class="cov10" title="3">{
+                if fullName, exists := rosterRecords[order.FamilyName]; exists </span><span class="cov6" title="2">{
+                        joinedMap[order] = fullName
+                }</span> else<span class="cov1" title="1"> {
+                        return eachResults, fmt.Errorf("名簿に%sさんの姓名がありません", order.FamilyName)
+                }</span>
+        }
+
+        // 発注情報についてループ
+        <span class="cov6" title="2">type EachResult struct {
+                fileName string
+                error_   error
+        }
+        resultsChan := make(chan EachResult, len(joinedMap))
+        var waitGroup sync.WaitGroup
+        for order, fullName := range joinedMap </span><span class="cov6" title="2">{
+                waitGroup.Add(1)
+                go func(o Order, f string) </span><span class="cov6" title="2">{
+                        defer waitGroup.Done()
+                        fileName := o.GetOutFileName()
+
+                        workdays, err := g.workdaysRetriever.RetrieveWorkdays(
+                                o.StartDate.Time, o.EndDate.Time)
+                        if err != nil </span><span class="cov1" title="1">{
+                                resultsChan &lt;- EachResult{
+                                        fileName: fileName,
+                                        error_:   err,
+                                }
+                                return
+                        }</span>
+
+                        <span class="cov1" title="1">resultsChan &lt;- EachResult{
+                                fileName: fileName,
+                                error_: g.newEachScheduleMaker(&amp;o, workdays, f,
+                                        filepath.Join(outputDirPath, fileName),
+                                        templateFilePath,
+                                ).MakeSchedule(),
+                        }</span>
+
+                }(order, fullName)
+        }
+        <span class="cov6" title="2">go func() </span><span class="cov6" title="2">{
+                waitGroup.Wait()
+                close(resultsChan)
+        }</span>()
+
+        <span class="cov6" title="2">eachResults = make(map[string]error, len(joinedMap))
+        for result := range resultsChan </span><span class="cov6" title="2">{
+                eachResults[result.fileName] = result.error_
+        }</span>
+
+        <span class="cov6" title="2">return eachResults, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package cmd
+
+import (
+        "strings"
+        "time"
+)
+
+// APIのレスポンス内の日付用の型
+// RFC2339形式の日時文字列ではないため。
+type HolidayDate struct {
+        time.Time
+}
+
+// JSONデコード時の日付パース
+func (cd *HolidayDate) UnmarshalJSON(b []byte) error <span class="cov10" title="9">{
+        date, err := time.Parse("2006-01-02", strings.Trim(string(b), "\""))
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov10" title="9">cd.Time = date
+        return nil</span>
+}
+
+type Holiday struct {
+        Date HolidayDate
+        Name string
+}
+
+type HolidaysJson struct {
+        Holidays []Holiday
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package cmd
+
+import "sync"
+
+type LockManager[T any] struct {
+        locks  map[string]*sync.RWMutex // 読み書きロック
+        mu     sync.Mutex               // 読み書きロック自体のロック
+        genKey func(T) string
+}
+
+func NewLockManager[T any](genkey func(T) string) *LockManager[T] <span class="cov5" title="5">{
+        return &amp;LockManager[T]{
+                locks:  make(map[string]*sync.RWMutex),
+                genKey: genkey,
+        }
+}</span>
+
+func (lm *LockManager[T]) GetLock(key T) *sync.RWMutex <span class="cov10" title="31">{
+        lm.mu.Lock()
+        defer lm.mu.Unlock()
+
+        keyStr := lm.genKey(key)
+
+        if lock, exists := lm.locks[keyStr]; exists </span><span class="cov8" title="18">{
+                // 既存の読み書きロック
+                return lock
+        }</span>
+        // 新規の読み書きロック
+        <span class="cov7" title="13">lock := &amp;sync.RWMutex{}
+        lm.locks[keyStr] = lock
+        return lock</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package cmd
+
+import (
+        "fmt"
+        "time"
+)
+
+// RFC2339形式の日時文字列ではないため、
+// シリアライズのためにカスタム構造体を定義
+type OrderDate struct {
+        time.Time
+}
+
+func (od *OrderDate) UnmarshalCSV(data []byte) error <span class="cov10" title="5">{
+        tt, err := time.Parse("20060102", string(data))
+        if err != nil </span><span class="cov1" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="4">od.Time = tt
+        return nil</span>
+}
+
+type Order struct {
+        Company        string    `json:"company" csv:"会社"`
+        FamilyName     string    `json:"familyName" csv:"姓"`
+        OrderNo        string    `json:"orderNo" csv:"発注番号"`
+        Issue          string    `json:"issue" csv:"案件名"`
+        ProjectCode    string    `json:"projectCode" csv:"PrjCD"`
+        Customer       string    `json:"customer" csv:"顧客名"`
+        DepartmentCode string    `json:"departmentCode" csv:"担当部署CD"`
+        Amount         uint      `json:"amount" csv:"数量"`
+        Unit           string    `json:"unit" csv:"単位"`
+        StartDate      OrderDate `json:"startDate" csv:"作業開始日"`
+        EndDate        OrderDate `json:"endDate" csv:"作業終了日"`
+        Department     string    `json:"department" csv:"納入物の提出場所"`
+        Representative string    `json:"representative" csv:"担当責任者"`
+}
+
+func (o Order) GetOutFileName() string <span class="cov4" title="2">{
+        return fmt.Sprintf(
+                // "S-%s【%s】%s_%04d%02d.xlsx",
+                "S-%s_%04d%02d_1_【%s】%s.xlsx",
+                o.OrderNo,
+                o.StartDate.Year(), o.StartDate.Month(),
+                o.Company, o.FamilyName,
+        )
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package cmd
+
+import (
+        "bytes"
+        "encoding/csv"
+        "fmt"
+        "strings"
+
+        "github.com/jszwec/csvutil"
+        "github.com/xuri/excelize/v2"
+)
+
+type OrderService struct{}
+
+func NewOrderService() *OrderService <span class="cov4" title="5">{
+        return &amp;OrderService{}
+}</span>
+
+func (OrderService) LoadOrders(path string) (
+        orders []Order, _ error,
+) <span class="cov4" title="5">{
+        // スプレッドシートを開く
+        f, err := excelize.OpenFile(path)
+        if err != nil </span><span class="cov1" title="1">{
+                return orders, err
+        }</span>
+        <span class="cov3" title="4">defer f.Close()
+
+        // 最初のシートのデータの範囲を取得する
+        sheetName := f.GetSheetName(0)
+        dim, err := f.GetSheetDimension(sheetName)
+        if err != nil </span><span class="cov0" title="0">{
+                return orders, err
+        }</span>
+        <span class="cov3" title="4">topLeftCol, topLeftRow, err := excelize.CellNameToCoordinates(strings.Split(dim, ":")[0])
+        if err != nil </span><span class="cov0" title="0">{
+                return orders, err
+        }</span>
+
+        // 最初のシートのテーブルを行ごとに読み込む
+        // デシリアライズの簡単さのため、メモリ上CSV化してから処理する
+        <span class="cov3" title="4">rows, err := f.GetRows(sheetName)
+        if err != nil </span><span class="cov0" title="0">{
+                return orders, err
+        }</span>
+        <span class="cov3" title="4">if len(rows) == 0 </span><span class="cov1" title="1">{
+                return orders, fmt.Errorf("発注情報のテーブルサイズが0")
+        }</span>
+        <span class="cov3" title="3">var buf bytes.Buffer
+        w := csv.NewWriter(&amp;buf)
+        isWritten := false
+        for _, row := range rows[topLeftRow-1:] </span><span class="cov5" title="10">{
+                // 空の行は読み飛ばす
+                // (GetSheetDimension()の不具合か、空行にもかかわらず範囲に含まれる場合があるため)
+                if len(strings.Join(row, "")) == 0 </span><span class="cov3" title="4">{
+                        if !isWritten </span><span class="cov3" title="3">{
+                                // 前方の空行は読み飛ばすのみ
+                                continue</span>
+                        } else<span class="cov1" title="1"> {
+                                // 後方の空行は読み取りを終える
+                                break</span>
+                        }
+                }
+
+                <span class="cov4" title="6">var trimmedRow []string
+                for _, cell := range row[topLeftCol-1:] </span><span class="cov10" title="78">{
+                        // セルの値の両端の空白, CR, LFを除去した値を格納する
+                        trimmedRow = append(trimmedRow,
+                                strings.TrimSpace(strings.NewReplacer("\r", "", "\n", "").Replace(cell)))
+                }</span>
+                <span class="cov4" title="6">if err := w.Write(trimmedRow); err != nil </span><span class="cov0" title="0">{
+                        return orders, err
+                }</span>
+                <span class="cov4" title="6">isWritten = true</span>
+        }
+        <span class="cov3" title="3">w.Flush()
+
+        // CSVデータをデシリアライズ
+        if err := csvutil.Unmarshal(buf.Bytes(), &amp;orders); err != nil </span><span class="cov1" title="1">{
+                return orders, err
+        }</span>
+
+        <span class="cov2" title="2">return orders, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package cmd
+
+import (
+        "encoding/json"
+        "fmt"
+        "io"
+        "net/http"
+        "slices"
+        "strings"
+        "time"
+)
+
+var reqlm = NewLockManager(
+        func(date time.Time) string <span class="cov6" title="11">{ return date.Format("200601") }</span>)
+
+type Getter interface {
+        Get(url string) (resp *http.Response, err error)
+}
+
+type HttpGetter struct{}
+
+func NewHttpGetter() *HttpGetter <span class="cov0" title="0">{
+        return &amp;HttpGetter{}
+}</span>
+func (HttpGetter) Get(url string) (*http.Response, error) <span class="cov0" title="0">{
+        return http.Get(url)
+}</span>
+
+type HolidaysCacher interface {
+        LoadCachedHolidays(date time.Time) (HolidaysJson, error)
+        CacheHolidays(holidays []byte) error
+}
+
+type WarnLogger interface {
+        Warning(message string)
+}
+
+type RetrieveWorkdaysService struct {
+        getter         Getter
+        holidaysCacher HolidaysCacher
+        warnLogger     WarnLogger
+}
+
+func NewRetrieveWorkdaysService(
+        getter Getter,
+        holidaysCacher HolidaysCacher,
+        warnLogger WarnLogger,
+) *RetrieveWorkdaysService <span class="cov6" title="9">{
+        return &amp;RetrieveWorkdaysService{
+                getter:         getter,
+                holidaysCacher: holidaysCacher,
+                warnLogger:     warnLogger,
+        }
+}</span>
+
+func (r *RetrieveWorkdaysService) RetrieveWorkdays(
+        startDate time.Time,
+        endDate time.Time,
+) (workdays []int, error_ error) <span class="cov2" title="2">{
+
+        // キャッシュを調べる
+        holidaysJSON, err := r.loadCachedHolidays(startDate)
+        if err != nil </span><span class="cov2" title="2">{
+                r.warnLogger.Warning(err.Error())
+                // キャッシュからの取得に失敗した場合はリクエスト
+                holidaysJSON_, err := r.requestAndCacheHolidays(startDate)
+                if err != nil </span><span class="cov1" title="1">{
+                        return []int{}, err
+                }</span>
+                <span class="cov1" title="1">holidaysJSON = holidaysJSON_</span>
+        }
+
+        // 勤務日のリストを作成する
+        // TODO: 先に祝日抜きで作っておいて、祝日取れなかったかも、みたいな状況にするのが自然では？
+<span class="cov1" title="1">daysLoop:
+        for day := startDate.Day(); day &lt;= endDate.Day(); day++ </span><span class="cov9" title="31">{
+                // 存在しない日付ならばスキップ
+                date, err := time.Parse(
+                        "20060102",
+                        fmt.Sprintf(
+                                "%04d%02d%02d",
+                                startDate.Year(), startDate.Month(), day),
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        // 実質的にはエラー発生しない
+                        r.warnLogger.Warning(err.Error())
+                        continue</span>
+                }
+
+                // 土日ならばスキップ
+                <span class="cov9" title="31">if slices.Contains([]time.Weekday{time.Saturday, time.Sunday}, date.Weekday()) </span><span class="cov5" title="8">{
+                        continue</span>
+                }
+
+                // 祝日ならばスキップ
+                <span class="cov8" title="23">for _, holiday := range holidaysJSON.Holidays </span><span class="cov10" title="45">{
+                        if holiday.Date.Day() == date.Day() </span><span class="cov2" title="2">{
+                                continue daysLoop</span>
+                        }
+                }
+
+                // 勤務日として追加
+                <span class="cov8" title="21">workdays = append(workdays, day)</span>
+        }
+
+        <span class="cov1" title="1">return workdays, nil</span>
+}
+
+func (r *RetrieveWorkdaysService) requestAndCacheHolidays(
+        startDate time.Time,
+) (holidays HolidaysJson, _ error) <span class="cov5" title="7">{
+        lock := reqlm.GetLock(startDate)
+        lock.Lock()
+        defer lock.Unlock()
+
+        // https://github.com/shogo82148/holidays-jp
+        // によるAPIにより当月の祝日を取得する
+        response, err := r.getter.Get(fmt.Sprintf(
+                HolidaysURL+"/%04d/%02d",
+                startDate.Year(), startDate.Month()))
+        if err != nil </span><span class="cov2" title="2">{
+                return holidays, err
+        }</span>
+        <span class="cov4" title="5">defer response.Body.Close()
+
+        // 取得結果をパース
+        body, err := io.ReadAll(response.Body)
+        if err != nil </span><span class="cov1" title="1">{
+                return holidays, err
+        }</span>
+        // リクエスト結果をキャッシュ
+        <span class="cov4" title="4">if err := r.holidaysCacher.CacheHolidays(body); err != nil </span><span class="cov1" title="1">{
+                r.warnLogger.Warning(err.Error())
+        }</span>
+
+        <span class="cov4" title="4">if err := json.NewDecoder(
+                strings.NewReader(string(body))).Decode(&amp;holidays); err != nil </span><span class="cov1" title="1">{
+                return holidays, err
+        }</span>
+
+        <span class="cov3" title="3">return holidays, nil</span>
+}
+
+func (r *RetrieveWorkdaysService) loadCachedHolidays(date time.Time) (HolidaysJson, error) <span class="cov4" title="4">{
+        lock := reqlm.GetLock(date)
+        lock.RLock()
+        defer lock.RUnlock()
+
+        return r.holidaysCacher.LoadCachedHolidays(date)
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package cmd
+
+import (
+        "fmt"
+
+        "github.com/jszwec/csvutil"
+        "github.com/samber/lo"
+        "github.com/spf13/afero"
+)
+
+type RosterRecord struct {
+        FamilyName string `json:"familyName" csv:"姓"`
+        FullName   string `json:"fullName" csv:"姓名"`
+}
+
+type RosterService struct {
+        fs afero.Fs
+}
+
+func NewRosterService(fs afero.Fs) *RosterService <span class="cov7" title="4">{
+        return &amp;RosterService{fs: afero.NewReadOnlyFs(fs)}
+}</span>
+
+func (r RosterService) LoadRosterRecords(path string) (map[string]string, error) <span class="cov7" title="4">{
+        ZERO := make(map[string]string)
+
+        fileBytes, err := afero.ReadFile(r.fs, path)
+        if err != nil </span><span class="cov1" title="1">{
+                return ZERO, err
+        }</span>
+
+        <span class="cov6" title="3">var records []RosterRecord
+        if err := csvutil.Unmarshal(fileBytes, &amp;records); err != nil </span><span class="cov1" title="1">{
+                return ZERO, err
+        }</span>
+
+        // 姓の列の一意性チェック
+        <span class="cov4" title="2">if len(lo.FindDuplicatesBy(records, func(r RosterRecord) string </span><span class="cov10" title="6">{ return r.FamilyName }</span>)) &gt; 0 <span class="cov1" title="1">{
+                return ZERO, fmt.Errorf("姓の列で重複する値が存在します。")
+        }</span>
+
+        // マップ化
+        <span class="cov1" title="1">retMap := make(map[string]string)
+        for _, record := range records </span><span class="cov1" title="1">{
+                retMap[record.FamilyName] = record.FullName
+        }</span>
+
+        <span class="cov1" title="1">return retMap, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

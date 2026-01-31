@@ -21,3 +21,5 @@ linter-settings:
         arguments:
           - checkPrivateReceivers
           - sayRepetitiveInsteadOfStutters
+  staticcheck:
+    checks: ["inherit", "SA*", "QF*"] # SA系でnilポインタ検出

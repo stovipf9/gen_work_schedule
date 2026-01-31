@@ -2,16 +2,29 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Build Windows Binary",
+			"label": "wails: build windows/amd64",
 			"type": "shell",
-			"command": "cd ${workspaceFolder}/cmd; CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -a -ldflags '-s -w -extldflags \"-static\"' -o ${workspaceFolder}/build/GenWorkSchedule.exe",
+			"options": {
+				"cwd": "${workspaceFolder}",
+				"env": {
+					"GOOS": "windows",
+					"GOARCH": "amd64",
+					"CGO_ENABLED": "0",
+				}
+			},
+			"command": "wails",
+			"args": [
+				"build",
+				"-platform",
+				"windows/amd64",
+				"-clean",
+				"-upx"
+			],
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-			"problemMatcher": [
-				"$go"
-			]
+			"problemMatcher": []
 		},
 		{
 			"label": "Generate Go Branch Coverage(C1) Report",
@@ -29,7 +42,7 @@
 				"cover",
 				"-html=coverage.out",
 				"-o",
-				"coverage.html",
+				"backend_coverage.html",
 				"&&",
 				"rm",
 				"coverage.out"
@@ -68,7 +81,7 @@
 			"args": [
 				"build",
 				"-tags",
-				"production,desktop",
+				"production,desktop,webkit2_41",
 				"-gcflags",
 				"all=-N -l",
 				"-o",
@@ -103,7 +116,7 @@
 			"args": [
 				"build",
 				"-tags",
-				"production,desktop,debug",
+				"production,desktop,debug,webkit2_41",
 				"-gcflags",
 				"all=-N -l",
 				"-o",
@@ -138,7 +151,7 @@
 			"args": [
 				"build",
 				"-tags",
-				"dev",
+				"dev,webkit2_41",
 				"-gcflags",
 				"all=-N -l",
 				"-o",
