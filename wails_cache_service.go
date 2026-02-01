@@ -18,10 +18,17 @@ func NewWailsCacheService(cacheService *cmd.CacheService) *WailsCacheService {
 }
 
 func (wc WailsCacheService) LoadCachedWindowPosSize() (WindowPosSize, error) {
-	return cmd.LoadCachedData[WindowPosSize](
+	windowPosSize, err := cmd.LoadCachedData[WindowPosSize](
 		wc.CacheDirFs(),
 		WINDOW_POS_SIZE_JSON,
 	)
+	if err != nil {
+		return WindowPosSize{}, err
+	}
+
+	windowPosSize.Normalize()
+
+	return windowPosSize, nil
 }
 
 func (wc WailsCacheService) CacheWindowPosSize(windowRect WindowPosSize) error {

@@ -6,23 +6,9 @@ import (
 	"os/exec"
 	"reflect"
 	"runtime"
-	"time"
 
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
-
-type Pos struct {
-	X int
-	Y int
-}
-type Size struct {
-	W int
-	H int
-}
-type WindowPosSize struct {
-	Pos  Pos
-	Size Size
-}
 
 type TableColumn struct {
 	Field string `json:"field"`
@@ -184,23 +170,12 @@ func (a *WailsApp) startup(ctx context.Context) {
 	} else {
 		a.logger.Log(cmd.WARNING, err)
 	}
-
-	wailsruntime.WindowShow(ctx)
-	wailsruntime.WindowCenter(ctx)
-	go func() {
-		<-time.After(200 * time.Millisecond)
-		wailsruntime.WindowExecJS(ctx, "window.focus()")
-	}()
 }
 
 func (a *WailsApp) beforeClose(ctx context.Context) (prevent bool) {
 	// 画面位置サイズをキャッシュファイルに保存
 	x, y := wailsruntime.WindowGetPosition(a.ctx)
 	w, h := wailsruntime.WindowGetSize(a.ctx)
-	x = max(x, 0)
-	y = max(y, 0)
-	w = max(w, 100)
-	h = max(h, 100)
 	a.logger.Log(cmd.WARNING, a.wailsCacheService.CacheWindowPosSize(
 		WindowPosSize{
 			Pos{x, y},
