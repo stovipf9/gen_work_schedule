@@ -5,12 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug",
+            "name": "Wails: Dev gen_work_schedule",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/",
-            "console": "integratedTerminal"
+            "mode": "exec",
+            "program": "${workspaceFolder}/build/bin/gen_work_schedule",
+            "preLaunchTask": "build dev",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
