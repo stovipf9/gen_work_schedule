@@ -16,7 +16,6 @@
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@tsconfig/svelte": "^5.0.5",
     "@types/node": "^22.19.0",
-    "@vitest/browser-playwright": "^4.0.16",
     "@vitest/browser-preview": "^4.0.16",
     "@vitest/coverage-istanbul": "4.0.16",
     "@vitest/ui": "4.0.16",

@@ -10,7 +10,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get install -y \
     libgtk-3-dev \
     libwebkit2gtk-4.1-dev \
-    zenity \
     upx-ucl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -22,4 +21,3 @@ RUN go install github.com/wailsapp/wails/v2/cmd/wails@latest
 #     && go install golang.org/x/tools/gopls@0.20.0
 
 RUN go install github.com/vektra/mockery/v3@v3.6.1
-RUN go install mvdan.cc/garble@latest

@@ -42,7 +42,7 @@
 				"cover",
 				"-html=coverage.out",
 				"-o",
-				"backend_coverage.html",
+				"cmd/backend_coverage.html",
 				"&&",
 				"rm",
 				"coverage.out"
@@ -52,76 +52,6 @@
 				"reveal": "always",
 				"panel": "new"
 			}
-		},
-		{
-			"label": "build",
-			"type": "shell",
-			"options": {
-				"cwd": "${workspaceFolder}",
-				"env": {
-					"CGO_ENABLED": "1"
-				}
-			},
-			"osx": {
-				"options": {
-					"env": {
-						"CGO_CFLAGS": "-mmacosx-version-min=10.13",
-						"CGO_LDFLAGS": "-framework UniformTypeIdentifiers -mmacosx-version-min=10.13"
-					}
-				}
-			},
-			"windows": {
-				"options": {
-					"env": {
-						"CGO_ENABLED": "0"
-					}
-				}
-			},
-			"command": "go",
-			"args": [
-				"build",
-				"-tags",
-				"production,desktop,webkit2_41",
-				"-gcflags",
-				"all=-N -l",
-				"-o",
-				"build/bin/gen_work_schedule"
-			]
-		},
-		{
-			"label": "build debug",
-			"type": "shell",
-			"options": {
-				"cwd": "${workspaceFolder}",
-				"env": {
-					"CGO_ENABLED": "1"
-				}
-			},
-			"osx": {
-				"options": {
-					"env": {
-						"CGO_CFLAGS": "-mmacosx-version-min=10.13",
-						"CGO_LDFLAGS": "-framework UniformTypeIdentifiers -mmacosx-version-min=10.13"
-					}
-				}
-			},
-			"windows": {
-				"options": {
-					"env": {
-						"CGO_ENABLED": "0"
-					}
-				}
-			},
-			"command": "go",
-			"args": [
-				"build",
-				"-tags",
-				"production,desktop,debug,webkit2_41",
-				"-gcflags",
-				"all=-N -l",
-				"-o",
-				"build/bin/gen_work_schedule"
-			]
 		},
 		{
 			"label": "build dev",
