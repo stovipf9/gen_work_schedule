@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	TestDirPath  = "./tests"
 	TestXlsxName = "TestOrder.xlsx"
 )
 
@@ -19,15 +18,14 @@ func TestOrderService_LoadOrders(t *testing.T) {
 		name string // description of this test case
 		// Named input parameters for target function.
 		path            string
-		preconditioning func()
+		preconditioning func(path string)
 		want            []Order
 		wantErr         bool
 	}{
 		{
 			name: "正常系",
-			path: TestDirPath + "/" + TestXlsxName,
-			preconditioning: func() {
-				_ = os.MkdirAll(TestDirPath, 0755)
+			path: filepath.Join(t.TempDir(), TestXlsxName),
+			preconditioning: func(path string) {
 				f := excelize.NewFile()
 				defer f.Close()
 
@@ -57,7 +55,7 @@ func TestOrderService_LoadOrders(t *testing.T) {
 					_ = f.SetCellStr(sheetName, valCellName, col.Value)
 				}
 
-				_ = f.SaveAs(TestDirPath + "/" + TestXlsxName)
+				_ = f.SaveAs(path)
 			},
 			want: []Order{
 				{
@@ -82,15 +80,14 @@ func TestOrderService_LoadOrders(t *testing.T) {
 		{
 			name:            "スプレッドシートが存在しない",
 			path:            "xxx",
-			preconditioning: func() {},
+			preconditioning: func(path string) {},
 			want:            nil,
 			wantErr:         true,
 		},
 		{
 			name: "正常系 (シート下方に空行あり)",
-			path: TestDirPath + "/" + TestXlsxName,
-			preconditioning: func() {
-				_ = os.MkdirAll(TestDirPath, 0755)
+			path: filepath.Join(t.TempDir(), TestXlsxName),
+			preconditioning: func(path string) {
 				f := excelize.NewFile()
 				defer f.Close()
 
@@ -123,7 +120,7 @@ func TestOrderService_LoadOrders(t *testing.T) {
 				jumpedCellName, _ := excelize.CoordinatesToCellName(1, 10)
 				_ = f.SetCellStr(sheetName, jumpedCellName, "dummy")
 
-				_ = f.SaveAs(TestDirPath + "/" + TestXlsxName)
+				_ = f.SaveAs(path)
 			},
 			want: []Order{
 				{
@@ -147,9 +144,8 @@ func TestOrderService_LoadOrders(t *testing.T) {
 		},
 		{
 			name: "正常系 (年月・発注番号の重複でのみシーケンス番号が増加)",
-			path: TestDirPath + "/" + TestXlsxName,
-			preconditioning: func() {
-				_ = os.MkdirAll(TestDirPath, 0755)
+			path: filepath.Join(t.TempDir(), TestXlsxName),
+			preconditioning: func(path string) {
 				f := excelize.NewFile()
 				defer f.Close()
 
@@ -217,7 +213,7 @@ func TestOrderService_LoadOrders(t *testing.T) {
 					}
 				}
 
-				_ = f.SaveAs(TestDirPath + "/" + TestXlsxName)
+				_ = f.SaveAs(path)
 			},
 			want: []Order{
 				{
@@ -305,22 +301,20 @@ func TestOrderService_LoadOrders(t *testing.T) {
 		},
 		{
 			name: "空Excel",
-			path: TestDirPath + "/" + TestXlsxName,
-			preconditioning: func() {
-				_ = os.MkdirAll(TestDirPath, 0755)
+			path: filepath.Join(t.TempDir(), TestXlsxName),
+			preconditioning: func(path string) {
 				f := excelize.NewFile()
 				defer f.Close()
 
-				_ = f.SaveAs(TestDirPath + "/" + TestXlsxName)
+				_ = f.SaveAs(path)
 			},
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name: "デコードエラー (日時の形式不正)",
-			path: TestDirPath + "/" + TestXlsxName,
-			preconditioning: func() {
-				_ = os.MkdirAll(TestDirPath, 0755)
+			path: filepath.Join(t.TempDir(), TestXlsxName),
+			preconditioning: func(path string) {
 				f := excelize.NewFile()
 				defer f.Close()
 
@@ -350,7 +344,7 @@ func TestOrderService_LoadOrders(t *testing.T) {
 					_ = f.SetCellStr(sheetName, valCellName, col.Value)
 				}
 
-				_ = f.SaveAs(TestDirPath + "/" + TestXlsxName)
+				_ = f.SaveAs(path)
 			},
 			want:    nil,
 			wantErr: true,
@@ -358,7 +352,7 @@ func TestOrderService_LoadOrders(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.preconditioning()
+			tt.preconditioning(tt.path)
 			o := NewOrderService()
 			got, gotErr := o.LoadOrders(tt.path)
 

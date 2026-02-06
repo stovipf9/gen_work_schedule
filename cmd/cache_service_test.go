@@ -174,7 +174,6 @@ func TestCacheService_LoadCachedHolidays(t *testing.T) {
 					[]byte(`{"holidays":[]}`), 0644)
 			},
 			date: time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
-			// want: []Holiday{},
 			wantErr: true,
 		},
 		{
@@ -184,7 +183,6 @@ func TestCacheService_LoadCachedHolidays(t *testing.T) {
 					[]byte(`{"holidays":[{"date":"2022-01-01","name":"元日"}]}`), 0644)
 			},
 			date: time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
-			// want:
 			wantErr: true,
 		},
 	}
@@ -257,83 +255,6 @@ func TestCacheService_CacheHolidays(t *testing.T) {
 		})
 	}
 }
-
-// func TestCacheService_LoadCachedWindowPosSize(t *testing.T) {
-// 	tests := []struct {
-// 		name                  string // description of this test case
-// 		preconditioning       func(afero.Fs, string)
-// 		cacheDirfs            afero.Fs
-// 		dedicatedCacheDirName string
-// 		want                  WindowPosSize
-// 		wantErr               bool
-// 	}{
-// 		{
-// 			name:                  "正常系",
-// 			cacheDirfs:            afero.NewMemMapFs(),
-// 			dedicatedCacheDirName: "temp",
-// 			preconditioning: func(fs afero.Fs, path string) {
-// 				afero.WriteFile(afero.NewBasePathFs(fs, path), WINDOW_POS_SIZE_JSON, []byte("{}"), 0644)
-// 			},
-// 			want:    WindowPosSize{},
-// 			wantErr: false,
-// 		},
-// 		{
-// 			name:                  "キャッシュファイルopenエラー",
-// 			cacheDirfs:            afero.NewMemMapFs(),
-// 			dedicatedCacheDirName: "temp",
-// 			wantErr:               true,
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			testFs := afero.NewMemMapFs()
-// 			c := NewCacheService(testFs, tt.dedicatedCacheDirName)
-// 			if tt.preconditioning != nil {
-// 				tt.preconditioning(testFs, tt.dedicatedCacheDirName)
-// 			}
-// 			got, gotErr := c.LoadCachedWindowPosSize()
-
-// 			assertErrorOrNoError(t, tt.wantErr, gotErr)
-
-// 			assert.Equal(t, tt.want, got)
-// 		})
-// 	}
-// }
-
-// func TestCacheService_CacheWindowPosSize(t *testing.T) {
-// 	tests := []struct {
-// 		name string // description of this test case
-// 		fs   afero.Fs
-// 		// Named input parameters for target function.
-// 		windowRect WindowPosSize
-// 		wantErr    bool
-// 	}{
-// 		{
-// 			name: "正常系",
-// 			fs:   afero.NewMemMapFs(),
-// 			windowRect: WindowPosSize{
-// 				Pos:  Pos{1, 2},
-// 				Size: Size{3, 4},
-// 			},
-// 			wantErr: false,
-// 		},
-// 		{
-// 			name:       "書き込みエラー",
-// 			fs:         afero.NewReadOnlyFs(afero.NewMemMapFs()),
-// 			windowRect: WindowPosSize{},
-// 			wantErr:    true,
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			const DIR_NAME = "gen_work_schedule"
-// 			c := NewCacheService(tt.fs, DIR_NAME)
-// 			gotErr := c.CacheWindowPosSize(tt.windowRect)
-
-// 			assertErrorOrNoError(t, tt.wantErr, gotErr)
-// 		})
-// 	}
-// }
 
 func Test_cacheData(t *testing.T) {
 	tests := []struct {
