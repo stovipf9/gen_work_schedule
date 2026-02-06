@@ -74,6 +74,7 @@ func TestOrderService_LoadOrders(t *testing.T) {
 					EndDate:        OrderDate{Time: time.Date(2024, 9, 30, 0, 0, 0, 0, time.UTC)},
 					Department:     "開発二部",
 					Representative: "I. K.",
+					SequenceNo:     1,
 				},
 			},
 			wantErr: false,
@@ -139,6 +140,165 @@ func TestOrderService_LoadOrders(t *testing.T) {
 					EndDate:        OrderDate{Time: time.Date(2024, 9, 30, 0, 0, 0, 0, time.UTC)},
 					Department:     "開発二部",
 					Representative: "I. K.",
+					SequenceNo:     1,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "正常系 (年月・発注番号の重複でのみシーケンス番号が増加)",
+			path: TestDirPath + "/" + TestXlsxName,
+			preconditioning: func() {
+				_ = os.MkdirAll(TestDirPath, 0755)
+				f := excelize.NewFile()
+				defer f.Close()
+
+				var orders []map[string]string
+				for _, v := range []struct {
+					orderNo   string
+					startDate string
+				}{
+					{ // 発注番号・年月が唯一
+						"123456",
+						"20240901",
+					},
+					{ // 発注番号・年月が共に異なる
+						"234567",
+						"20241001",
+					},
+					{ // 発注番号が重複、年月が異なる
+						"234567",
+						"20241101",
+					},
+					{ // 発注番号・年月が共に重複
+						"234567",
+						"20241101",
+					},
+					{ // 発注番号が異なる、年月が重複
+						"345678",
+						"20241101",
+					},
+				} {
+					orders = append(orders, map[string]string{
+						"会社":       "HHH",
+						"姓":        "山田",
+						"発注番号":     v.orderNo,
+						"案件名":      "２０２４\u3000ＯＯＯ業務",
+						"PrjCD":    "X12Y3456",
+						"顧客名":      "A社",
+						"担当部署CD":   "Z12345",
+						"数量":       "160",
+						"単位":       "人時",
+						"作業開始日":    v.startDate,
+						"作業終了日":    "20240930",
+						"納入物の提出場所": "開発二部",
+						"担当責任者":    "I. K.",
+					})
+				}
+
+				// 発注情報ファイルに記入
+				// 列名記入
+				colNames := make([]string, 0)
+				for colName := range orders[0] {
+					colNames = append(colNames, colName)
+				}
+				for colIndex, colName := range colNames {
+					colCellName, _ := excelize.CoordinatesToCellName(
+						colIndex+1, 2)
+					_ = f.SetCellStr(f.GetSheetName(0), colCellName, colName)
+				}
+				// 値記入
+				for rowIndex, order := range orders {
+					for colIndex, colName := range colNames {
+						valCellName, _ := excelize.CoordinatesToCellName(
+							colIndex+1, rowIndex+3)
+						_ = f.SetCellStr(f.GetSheetName(0), valCellName,
+							order[colName])
+					}
+				}
+
+				_ = f.SaveAs(TestDirPath + "/" + TestXlsxName)
+			},
+			want: []Order{
+				{
+					Company:        "HHH",
+					FamilyName:     "山田",
+					OrderNo:        "123456",
+					Issue:          "２０２４\u3000ＯＯＯ業務",
+					ProjectCode:    "X12Y3456",
+					Customer:       "A社",
+					DepartmentCode: "Z12345",
+					Amount:         160,
+					Unit:           "人時",
+					StartDate:      OrderDate{Time: time.Date(2024, 9, 1, 0, 0, 0, 0, time.UTC)},
+					EndDate:        OrderDate{Time: time.Date(2024, 9, 30, 0, 0, 0, 0, time.UTC)},
+					Department:     "開発二部",
+					Representative: "I. K.",
+					SequenceNo:     1,
+				},
+				{
+					Company:        "HHH",
+					FamilyName:     "山田",
+					OrderNo:        "234567",
+					Issue:          "２０２４\u3000ＯＯＯ業務",
+					ProjectCode:    "X12Y3456",
+					Customer:       "A社",
+					DepartmentCode: "Z12345",
+					Amount:         160,
+					Unit:           "人時",
+					StartDate:      OrderDate{Time: time.Date(2024, 10, 1, 0, 0, 0, 0, time.UTC)},
+					EndDate:        OrderDate{Time: time.Date(2024, 9, 30, 0, 0, 0, 0, time.UTC)},
+					Department:     "開発二部",
+					Representative: "I. K.",
+					SequenceNo:     1,
+				},
+				{
+					Company:        "HHH",
+					FamilyName:     "山田",
+					OrderNo:        "234567",
+					Issue:          "２０２４\u3000ＯＯＯ業務",
+					ProjectCode:    "X12Y3456",
+					Customer:       "A社",
+					DepartmentCode: "Z12345",
+					Amount:         160,
+					Unit:           "人時",
+					StartDate:      OrderDate{Time: time.Date(2024, 11, 1, 0, 0, 0, 0, time.UTC)},
+					EndDate:        OrderDate{Time: time.Date(2024, 9, 30, 0, 0, 0, 0, time.UTC)},
+					Department:     "開発二部",
+					Representative: "I. K.",
+					SequenceNo:     1,
+				},
+				{
+					Company:        "HHH",
+					FamilyName:     "山田",
+					OrderNo:        "234567",
+					Issue:          "２０２４\u3000ＯＯＯ業務",
+					ProjectCode:    "X12Y3456",
+					Customer:       "A社",
+					DepartmentCode: "Z12345",
+					Amount:         160,
+					Unit:           "人時",
+					StartDate:      OrderDate{Time: time.Date(2024, 11, 1, 0, 0, 0, 0, time.UTC)},
+					EndDate:        OrderDate{Time: time.Date(2024, 9, 30, 0, 0, 0, 0, time.UTC)},
+					Department:     "開発二部",
+					Representative: "I. K.",
+					SequenceNo:     2,
+				},
+				{
+					Company:        "HHH",
+					FamilyName:     "山田",
+					OrderNo:        "345678",
+					Issue:          "２０２４\u3000ＯＯＯ業務",
+					ProjectCode:    "X12Y3456",
+					Customer:       "A社",
+					DepartmentCode: "Z12345",
+					Amount:         160,
+					Unit:           "人時",
+					StartDate:      OrderDate{Time: time.Date(2024, 11, 1, 0, 0, 0, 0, time.UTC)},
+					EndDate:        OrderDate{Time: time.Date(2024, 9, 30, 0, 0, 0, 0, time.UTC)},
+					Department:     "開発二部",
+					Representative: "I. K.",
+					SequenceNo:     1,
 				},
 			},
 			wantErr: false,

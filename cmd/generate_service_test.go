@@ -60,6 +60,7 @@ func TestGenerateService_Generate(t *testing.T) {
 					Company:    "ABC",
 					FamilyName: "山田",
 					StartDate:  OrderDate{Time: time.Date(2024, 9, 1, 0, 0, 0, 0, time.UTC)},
+					SequenceNo: 1,
 				},
 			},
 			rosterRecords: map[string]string{
@@ -88,6 +89,7 @@ func TestGenerateService_Generate(t *testing.T) {
 					Company:    "ABC",
 					FamilyName: "山田",
 					StartDate:  OrderDate{Time: time.Date(2024, 9, 1, 0, 0, 0, 0, time.UTC)},
+					SequenceNo: 1,
 				},
 			},
 			rosterRecords: map[string]string{

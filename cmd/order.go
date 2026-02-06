@@ -34,14 +34,15 @@ type Order struct {
 	EndDate        OrderDate `json:"endDate" csv:"作業終了日"`
 	Department     string    `json:"department" csv:"納入物の提出場所"`
 	Representative string    `json:"representative" csv:"担当責任者"`
+	SequenceNo     uint
 }
 
 func (o Order) GetOutFileName() string {
 	return fmt.Sprintf(
-		// "S-%s【%s】%s_%04d%02d.xlsx",
-		"S-%s_%04d%02d_1_【%s】%s.xlsx",
+		"S-%s_%04d%02d_%d_【%s】%s.xlsx",
 		o.OrderNo,
 		o.StartDate.Year(), o.StartDate.Month(),
+		o.SequenceNo,
 		o.Company, o.FamilyName,
 	)
 }

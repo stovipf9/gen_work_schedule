@@ -80,5 +80,16 @@ func (OrderService) LoadOrders(path string) (
 		return orders, err
 	}
 
+	// シーケンス番号を付ける
+	seqNoMap := make(map[string]uint)
+	for ind := range orders {
+		order := &orders[ind]
+		key := fmt.Sprintf("%s_%04d%02d",
+			order.OrderNo,
+			order.StartDate.Year(), order.StartDate.Month())
+		seqNoMap[key]++
+		order.SequenceNo = seqNoMap[key]
+	}
+
 	return orders, nil
 }
