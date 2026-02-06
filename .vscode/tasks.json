@@ -2,23 +2,50 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "wails: build windows/amd64",
+			"label": "wails: build windows/amd64 + zip",
 			"type": "shell",
 			"options": {
 				"cwd": "${workspaceFolder}",
 				"env": {
 					"GOOS": "windows",
 					"GOARCH": "amd64",
-					"CGO_ENABLED": "0",
+					"CGO_ENABLED": "0"
 				}
 			},
-			"command": "wails",
-			"args": [
+			"command": [
+				"wails",
 				"build",
 				"-platform",
 				"windows/amd64",
 				"-clean",
-				"-upx"
+				"-upx",
+				"&&",
+				"cp",
+				"build/bin/gen_work_schedule.exe",
+				"release",
+				"&&",
+				"pandoc",
+				"-s",
+				"-o",
+				"release/README.pdf",
+				"README.md",
+				"--pdf-engine=weasyprint",
+				"&&",
+				"rm",
+				"-f",
+				"gen_work_schedule-windows.zip",
+				"&&",
+				"cd",
+				"release",
+				"&&",
+				"zip",
+				"-r",
+				"-9",
+				"../gen_work_schedule-windows.zip",
+				"./*",
+				"&&",
+				"echo",
+				"'ZIP生成完了: gen_work_schedule-windows.zip'"
 			],
 			"group": {
 				"kind": "build",
@@ -77,6 +104,9 @@
 					}
 				}
 			},
+			"dependsOn": [
+				"mkdir-build"
+			],
 			"command": "go",
 			"args": [
 				"build",
@@ -87,6 +117,22 @@
 				"-o",
 				"build/bin/gen_work_schedule"
 			]
+		},
+		{
+			"label": "mkdir-build",
+			"type": "shell",
+			"command": "mkdir",
+			"args": [
+				"-p",
+				"build/bin"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "silent",
+				"focus": false,
+				"panel": "shared"
+			}
 		}
 	]
 }

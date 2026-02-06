@@ -12,7 +12,7 @@ dist
 dist-ssr
 coverage
 *.local
-wailsjs/go/*
+wailsjs
 
 # Editor directories and files
 .vscode/*

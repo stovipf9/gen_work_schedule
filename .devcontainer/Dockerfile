@@ -11,6 +11,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     libgtk-3-dev \
     libwebkit2gtk-4.1-dev \
     upx-ucl \
+    weasyprint \
     && rm -rf /var/lib/apt/lists/*
 
 # install wails v2

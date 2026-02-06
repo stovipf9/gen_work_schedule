@@ -56,7 +56,7 @@ F5でデバッグ実行。開発環境のOSはdebianですので、ファイル�
         1. `Tasks: Run Task`を選択
         1. `Generate Go Branch Coverage(C1) Report`を選択
 
-    * フロントエンドは、単体テストと同時に`frontend/coverage`フォルダにカバレッジレポートが`html`形式で出力されます。
+    * フロントエンドは、単体テストと同時に`frontend/coverage`フォルダにカバレッジレポートが`html`形式で出力されます。**実行タイミングにより偽陽性となることがありますが、そのケースについては再実行を試みてください。**
 
 ### Windows向けのリリースビルド
 

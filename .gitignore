@@ -6,3 +6,5 @@ frontend/dist
 frontend/package.json.md5
 cmd/*coverage.html
 .pnpm-store
+*.pdf
+*.zip
