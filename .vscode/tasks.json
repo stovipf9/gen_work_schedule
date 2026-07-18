@@ -105,7 +105,8 @@
 				}
 			},
 			"dependsOn": [
-				"mkdir-build"
+				"mkdir-build",
+				"build frontend"
 			],
 			"command": "go",
 			"args": [
@@ -117,6 +118,23 @@
 				"-o",
 				"build/bin/gen_work_schedule"
 			]
+		},
+		{
+			"label": "build frontend",
+			"type": "shell",
+			"options": {
+				"cwd": "${workspaceFolder}/frontend"
+			},
+			"command": "pnpm",
+			"args": [
+				"run",
+				"generate-bindings"
+			],
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared"
+			},
+			"problemMatcher": []
 		},
 		{
 			"label": "mkdir-build",
