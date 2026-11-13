@@ -25,7 +25,7 @@
 ## 設計・品質面の工夫
 
 - インターフェースと依存性注入(DI)で責務を分離し、ファイルシステムを抽象化してテスト容易性を確保
-- 単体テストをバックエンド(Go / testify・mockery)とフロントエンド(Vitest)に分離し、C1(分岐)カバレッジを計測
+- 単体テストをバックエンド(Go / testify・mockery)とフロントエンド(Vitest)に分離し、カバレッジを計測(バックエンドはGo標準の文カバレッジ)
 - `golangci-lint`・`knip`・`devcontainer` でコード品質と開発環境の再現性を担保
 - 排他制御（ロック機構）を実装
 
@@ -74,7 +74,7 @@ F5でデバッグ実行。開発環境のOSはdebianですので、ファイル�
     
         1. `Ctrl + Shift + P`でコマンドパレットを開き、
         1. `Tasks: Run Task`を選択
-        1. `Generate Go Branch Coverage(C1) Report`を選択
+        1. `Generate Go Coverage Report`を選択
 
     * フロントエンドは、単体テストと同時に`frontend/coverage`フォルダにカバレッジレポートが`html`形式で出力されます。**実行タイミングにより偽陽性となることがありますが、そのケースについては再実行を試みてください。**
 

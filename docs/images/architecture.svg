@@ -85,5 +85,5 @@
   <!-- footer quality notes -->
   <line x1="30" y1="416" x2="950" y2="416" stroke="#e2e8f0"/>
   <text x="30" y="440" font-size="11.5" fill="#475569"><tspan font-weight="700" fill="#334155">設計・品質: </tspan>インターフェース+DIで責務分離 ・ ファイルシステム抽象化でテスト容易性確保 ・ 排他制御（ロック機構）</text>
-  <text x="30" y="461" font-size="11.5" fill="#475569"><tspan font-weight="700" fill="#334155">テスト: </tspan>単体テストを Go(testify/mockery) と Front(Vitest) に分離 ・ C1カバレッジ計測 ・ golangci-lint / knip / devcontainer</text>
+  <text x="30" y="461" font-size="11.5" fill="#475569"><tspan font-weight="700" fill="#334155">テスト: </tspan>単体テストを Go(testify/mockery) と Front(Vitest) に分離 ・ カバレッジ計測 ・ golangci-lint / knip / devcontainer</text>
 </svg>
